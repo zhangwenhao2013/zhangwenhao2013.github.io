@@ -103,7 +103,7 @@
 <meta property="og:description" content="事务管理可以分为编程式事务管理和声明式事务管理。编程式事务管理:类似命令式的事务管理，只是把涉及到事务操作的逻辑抽取成目标类，使用者只需要关注数据库操作； 声明式事务管理:声明式编程的事务管理方式，通过响应的配置，告诉让框架来我们需要达到什么样的效果，让框架来管理事务，而不需要使用者手动管理；  npm install https://github.com/CodeFalling/hexo-ass">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://some.png">
-<meta property="og:updated_time" content="2019-06-19T01:43:07.046Z">
+<meta property="og:updated_time" content="2019-06-19T01:54:41.718Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="事务管理">
 <meta name="twitter:description" content="事务管理可以分为编程式事务管理和声明式事务管理。编程式事务管理:类似命令式的事务管理，只是把涉及到事务操作的逻辑抽取成目标类，使用者只需要关注数据库操作； 声明式事务管理:声明式编程的事务管理方式，通过响应的配置，告诉让框架来我们需要达到什么样的效果，让框架来管理事务，而不需要使用者手动管理；  npm install https://github.com/CodeFalling/hexo-ass">
@@ -385,26 +385,19 @@
 <h1 id="事务管理"><a href="#事务管理" class="headerlink" title="事务管理"></a>事务管理</h1><h2 id="Description"><a href="#Description" class="headerlink" title="Description"></a>Description</h2><h1 id="事务管理-1"><a href="#事务管理-1" class="headerlink" title="事务管理"></a>事务管理</h1><h2 id="编程式事务管理"><a href="#编程式事务管理" class="headerlink" title="编程式事务管理"></a>编程式事务管理</h2><h2 id="声明式事务管理"><a href="#声明式事务管理" class="headerlink" title="声明式事务管理"></a>声明式事务管理</h2><h3 id="基于-TransactionProxyFactoryBean代理的Service方式事务管理"><a href="#基于-TransactionProxyFactoryBean代理的Service方式事务管理" class="headerlink" title="基于 TransactionProxyFactoryBean代理的Service方式事务管理"></a>基于 TransactionProxyFactoryBean代理的Service方式事务管理</h3><h3 id="基于AspectJ-xml-配置声明式的事务管理"><a href="#基于AspectJ-xml-配置声明式的事务管理" class="headerlink" title="基于AspectJ xml 配置声明式的事务管理"></a>基于AspectJ xml 配置声明式的事务管理</h3><h3 id="基于注解方式的声明式事务管理"><a href="#基于注解方式的声明式事务管理" class="headerlink" title="基于注解方式的声明式事务管理"></a>基于注解方式的声明式事务管理</h3><!DOCTYPE html>
 <html lang="en">
 <head><meta name="generator" content="Hexo 3.8.0">
-    <meta charset="UTF-8">
-    <title>Valine - A simple comment system based on Leancloud.</title>
-    <!--Leancloud 操作库:-->
-    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-    <!--Valine 的核心代码库:-->
-    <script src="./dist/Valine.min.js"></script>
-</head>
+
+<pre><code>&lt;script src=&quot;//cdn1.lncld.net/static/js/3.0.4/av-min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&apos;//unpkg.com/valine/dist/Valine.min.js&apos;&gt;&lt;/script&gt;</code></pre></head>
 <body>
-    <div class="comment"></div>
-    <script>
-        new Valine({
-            // AV 对象来自上面引入av-min.js(老司机们不要开车➳♡゛扎心了老铁)
-            av: AV, 
-            el: '.comment', // 
-            app_id: '0EeSMLec5xvwmNgdKLIqCzVM-gzGzoHsz', // 这里填写上面得到的APP ID
-            app_key: 'BXqidTIEO6FBPAkSRsE1L6m8', // 这里填写上面得到的APP KEY
-            placeholder: 'ヾﾉ≧∀≦)o来啊，快活啊!' // [v1.0.7 new]留言框占位提示文字
-        });
-    </script>
-</body>
+
+<pre><code>&lt;div id=&quot;vcomments&quot;&gt;&lt;/div&gt;
+&lt;script&gt;
+    new Valine({
+        el: &apos;#vcomments&apos;,
+        appId: &apos;0EeSMLec5xvwmNgdKLIqCzVM-gzGzoHsz&apos;,
+        appKey: &apos;BXqidTIEO6FBPAkSRsE1L6m8&apos;
+    })
+&lt;/script&gt;</code></pre></body>
 </html>
 
 
