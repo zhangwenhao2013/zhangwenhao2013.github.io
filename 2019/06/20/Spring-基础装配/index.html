@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
 
 
-  <meta name="keywords" content="B,C,">
+  <meta name="keywords" content="Spring,">
 
 
 
@@ -94,21 +94,20 @@
 
 
 
-<meta name="description" content="Description  npm install https://github.com/CodeFalling/hexo-asset-image –save">
-<meta name="keywords" content="B,C">
+<meta name="description" content="个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术;  Spring 很多功能都是基于这两个技术实现更方便的功能和特性；这里总结下DI部分。">
+<meta name="keywords" content="Spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring_基础装配">
 <meta property="og:url" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-基础装配/index.html">
 <meta property="og:site_name" content="老柯南">
-<meta property="og:description" content="Description  npm install https://github.com/CodeFalling/hexo-asset-image –save">
+<meta property="og:description" content="个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术;  Spring 很多功能都是基于这两个技术实现更方便的功能和特性；这里总结下DI部分。">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="https://some.png">
-<meta property="og:image" content="https://some.png">
-<meta property="og:updated_time" content="2019-06-20T09:22:40.825Z">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-基础装配/timg2.jpg">
+<meta property="og:updated_time" content="2019-06-20T09:36:14.469Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring_基础装配">
-<meta name="twitter:description" content="Description  npm install https://github.com/CodeFalling/hexo-asset-image –save">
-<meta name="twitter:image" content="https://some.png">
+<meta name="twitter:description" content="个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术;  Spring 很多功能都是基于这两个技术实现更方便的功能和特性；这里总结下DI部分。">
+<meta name="twitter:image" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-基础装配/timg2.jpg">
 
 
 
@@ -318,8 +317,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/A1/" itemprop="url" rel="index">
-                    <span itemprop="name">A1</span>
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
                   </a>
                 </span>
 
@@ -329,8 +328,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/A1/A2/" itemprop="url" rel="index">
-                    <span itemprop="name">A2</span>
+                  <a href="/categories/Java/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
                   </a>
                 </span>
 
@@ -366,41 +365,18 @@
       
 
       
-        <p>Description</p>
-<p><img src="https://some.png" alt="网络图片"></p>
-<p>npm install <a href="https://github.com/CodeFalling/hexo-asset-image" target="_blank" rel="noopener">https://github.com/CodeFalling/hexo-asset-image</a> –save</p>
+        <p>个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术;</p>
+<p> Spring 很多功能都是基于这两个技术实现更方便的功能和特性；这里总结下DI部分。</p>
+<p><img src="/2019/06/20/Spring-基础装配/timg2.jpg" alt="依赖注入"></p>
 <a id="more"></a>
-
-
-
-<div id="container"></div>
-<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
-<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
-<script>
-var gitment = new Gitment({
-  id: 'location.href', // 可选。默认为 location.href
-  owner: 'zhangwenhao2013',
-  repo: 'zhangwenhao2013.github.io',
-  oauth: {
-    client_id: 'ac818ef7cc637fa01a12',
-    client_secret: '046c3ecb4df38f18814f9b2a6fe1efaaada1aada',
-  },
-})
-gitment.render('container')
-</script>
-
-<p>GitHub<a href="https://gh-oauth.imsun.net/" target="_blank" rel="noopener">登录不了</a>?信任该网站之后再登录。</p>
-<p>个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术; Spring 很多功能都是基于这两个技术实现更方便的功能和特性；这里总结下DI部分。</p>
-<p><img src="https://some.png" alt="网络图片"></p>
-<p>npm install <a href="https://github.com/CodeFalling/hexo-asset-image" target="_blank" rel="noopener">https://github.com/CodeFalling/hexo-asset-image</a> –save</p>
-<!-- more -->
 
 <h2 id="Spring配置Bean的三中方式"><a href="#Spring配置Bean的三中方式" class="headerlink" title="Spring配置Bean的三中方式"></a>Spring配置Bean的三中方式</h2><p>1：隐式的Bean发现机制和自动装配；</p>
 <p>2：在Java 中显示配置；</p>
 <p>3：XML 中显示配置；</p>
 <p>4：混合配置；</p>
 <p>前3种配置方式，尽可能的使用自动配置（1），当自动配置不能满足的时候才用Java config（2）显示配置；</p>
-<p>粗略的优先级    自动装配 &gt; 显示配置 &gt; Xml配置</p>
+<p>粗略的优先级 </p>
+<p> 自动装配 &gt; 显示配置 &gt; Xml配置</p>
 <p>通常的JAVA依赖注入，构造注入，接口注入，setter方法注入，都是将对象的源 ，通过一定的方式注入到目的类中。Spring中的依赖注入，开发者只需要关注源和目的类，然后声明式的设置源和目的类，Spring 框架提供了强大的声明式配置达到开发者想要的依赖注入效果；</p>
 <h2 id="自动装配"><a href="#自动装配" class="headerlink" title="自动装配"></a>自动装配</h2><p>Spring 从两个角度来实现自动化装配：</p>
 <p>组件扫描（ComponentScaning）:Spring 会自动发现应用上下文中所创建的beanl；<br>自动装配（Autowiring）：Spring 自动满足bean 之间的依赖，Spring 会自动将关系匹配的bean关联上；</p>
@@ -503,9 +479,7 @@ gitment.render('container')
       
         <div class="post-tags">
           
-            <a href="/tags/B/" rel="tag"># B</a>
-          
-            <a href="/tags/C/" rel="tag"># C</a>
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
           
         </div>
       
@@ -625,7 +599,7 @@ gitment.render('container')
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
