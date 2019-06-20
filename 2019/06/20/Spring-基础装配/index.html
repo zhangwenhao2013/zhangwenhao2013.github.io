@@ -103,7 +103,7 @@
 <meta property="og:description" content="个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术; Spring 很多功能和特性都是基于这两个技术实现的；这里总结下DI部分。">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-基础装配/timg2.jpg">
-<meta property="og:updated_time" content="2019-06-20T09:45:01.697Z">
+<meta property="og:updated_time" content="2019-06-20T09:54:38.016Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring_基础装配">
 <meta name="twitter:description" content="个人感觉Spring框架最核心的技术就是：依赖注入（DI） ， AOP技术; Spring 很多功能和特性都是基于这两个技术实现的；这里总结下DI部分。">
@@ -406,7 +406,8 @@
 <p>作用在成员变量和setter方法上，是直接提供成员变量； 作用在构造上是提供构造需要的参数；</p>
 <p>如果@Autowiried 所注解的成员变量不是必要的， 可以使用 required 属性设置为false；值得注意的是，此时，这个成员变量使用时要记得做判null;</p>
 <p>还有另外一种 注解方式：@Name 类似@Component ， @Inject 类似@Autowiried；</p>
-<h3 id="Spring-自动装配额外特性"><a href="#Spring-自动装配额外特性" class="headerlink" title="Spring 自动装配额外特性"></a>Spring 自动装配额外特性</h3><p>如果Spring 容器中同类型的Bean 有多个，Spring 会额外把Bean装配到对应类型的集合中！！！！！  </p>
+<h3 id="Spring-自动装配额外特性"><a href="#Spring-自动装配额外特性" class="headerlink" title="Spring 自动装配额外特性"></a>Spring 自动装配额外特性</h3><p>如果Spring 容器中同类型的Bean 有多个，如果定义一个该类型的集合，并使用@Autowired 标注，Spring 会把容器中所有Bean装配到对应类型的集合中！！！！！</p>
+<p>这个特性在Spring 的功能的源码中可以看到，比如Spring MVC的 ViewResolver；  </p>
 <h2 id="Java-中显示配置"><a href="#Java-中显示配置" class="headerlink" title="Java 中显示配置"></a>Java 中显示配置</h2><p> 虽然推荐使用 Spring的自动装配，但是如果我们用到了第三方的类的时候，就没法在人家的类上使用@Component了。此时我们就要使用在Java Config中显示配置；</p>
  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> // 源</span><br><span class="line"> @Configuration()</span><br><span class="line">public class L3Config &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public L2Bean creatL2Bean()&#123;</span><br><span class="line">        return new L2Bean();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 使用</span><br><span class="line">@RunWith(SpringJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(classes = L3Config.class)</span><br><span class="line">public class TestConfig2 &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    L2Bean l2Bean;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testL2JavaConfig()&#123;</span><br><span class="line"></span><br><span class="line">        l2Bean.print();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
