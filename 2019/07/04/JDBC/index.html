@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="JAVA,JDBC,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2">
+
+
+
+
+
+
+<meta name="description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;  npm install https://github.com/CodeFalling/hexo-asset-image –save">
+<meta name="keywords" content="JAVA,JDBC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDBC--基于MySQL">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2019/07/04/JDBC/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;  npm install https://github.com/CodeFalling/hexo-asset-image –save">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://some.png">
+<meta property="og:updated_time" content="2019-07-05T09:49:17.672Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDBC--基于MySQL">
+<meta name="twitter:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;  npm install https://github.com/CodeFalling/hexo-asset-image –save">
+<meta name="twitter:image" content="https://some.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhangwenhao2013.github.io/2019/07/04/JDBC/">
+
+
+
+
+
+  <title>JDBC--基于MySQL | 老柯南</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">老柯南</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">晴耕雨读</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/04/JDBC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/dl.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JDBC--基于MySQL</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-04T09:48:20+08:00">
+                2019-07-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JDBC/" itemprop="url" rel="index">
+                    <span itemprop="name">JDBC</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JDBC/JAVA/" itemprop="url" rel="index">
+                    <span itemprop="name">JAVA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API;</p>
+<p>所有数据库都支持的一套链接方式；</p>
+<p>高级的持久化框架也是基于JDBC来实现的，比如Mybatis;</p>
+<p><img src="https://some.png" alt="网络图片"></p>
+<p>npm install <a href="https://github.com/CodeFalling/hexo-asset-image" target="_blank" rel="noopener">https://github.com/CodeFalling/hexo-asset-image</a> –save</p>
+<a id="more"></a>
+
+<p>这里我用的是mysql的数据库，使用的是Java 8 的环境;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --&gt;</span><br><span class="line">       &lt;dependency&gt;</span><br><span class="line">           &lt;groupId&gt;mysql&lt;/groupId&gt;</span><br><span class="line">           &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">           &lt;version&gt;8.0.13&lt;/version&gt;</span><br><span class="line">       &lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="连接数据库"><a href="#连接数据库" class="headerlink" title="连接数据库"></a>连接数据库</h2><h3 id="驱动方式"><a href="#驱动方式" class="headerlink" title="驱动方式"></a>驱动方式</h3><p>连接驱动数据库：这里采用直接通过类加载的方式加载驱动文件，不推荐使用DriverManager.registerDriver（）的方式驱动；</p>
+<p>缺点：使用DriverManager.registerDriver（）驱动的方式会驱动文件会在内存中注册两次，重复注册；</p>
+<p>原因：使用DriverManager.registerDriver（）注册的时候，需要new 一个 Driver的实例当参数；</p>
+<p>而在Driver加载的时候就会执行其中的静态代码块注册；所有使用DriverManager.registerDriver（） 内存中有两个Driver的实例；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class Driver extends NonRegisteringDriver implements java.sql.Driver &#123;</span><br><span class="line">    //</span><br><span class="line">    // Register ourselves with the DriverManager</span><br><span class="line">    //</span><br><span class="line">    static &#123;</span><br><span class="line">       	...</span><br><span class="line">            java.sql.DriverManager.registerDriver(new Driver());</span><br><span class="line">          ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="驱动文件"><a href="#驱动文件" class="headerlink" title="驱动文件"></a>驱动文件</h3><p>新驱动文件：com.mysql.cj.jdbc.Driver</p>
+<p>旧驱动文件：com.mysql.jdbc.Driver ：这个已经被废弃了，推荐使用新的；效果是一样的，只是有废弃的提示log;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">private static Connection getConnection() throws ClassNotFoundException, SQLException &#123;</span><br><span class="line">        //加载驱动</span><br><span class="line">        Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;); </span><br><span class="line">        // 这里不推荐使用 DriverManager.registerDriver(new Driver()); 加载驱动</span><br><span class="line">        // 如果是用registerDriver 内存中会有注册两次</span><br><span class="line"></span><br><span class="line">        String dbUrl = &quot;jdbc:mysql://localhost:3306/conan&quot;;</span><br><span class="line">        String name = &quot;root&quot;;</span><br><span class="line">        String pwd = &quot;12345678&quot;;</span><br><span class="line"></span><br><span class="line">        return DriverManager.getConnection(dbUrl, name, pwd);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="数据库连接Connection"><a href="#数据库连接Connection" class="headerlink" title="数据库连接Connection"></a>数据库连接Connection</h3><p>Connection 是一个数据库的链接的接口；提供获取Statement（其中有 session 最终真正执行Sql ）的方法;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">// 获取connection</span><br><span class="line"></span><br><span class="line">//  Worker method called by the public getConnection() methods.</span><br><span class="line">    private static Connection getConnection(</span><br><span class="line">        String url, java.util.Properties info, Class&lt;?&gt; caller) throws SQLException &#123;</span><br><span class="line">        </span><br><span class="line">        for(DriverInfo aDriver : registeredDrivers) &#123;</span><br><span class="line">            // If the caller does not have permission to load the driver then</span><br><span class="line">            // skip it.</span><br><span class="line">          Connection con = aDriver.driver.connect(url, info);</span><br><span class="line">          return (con);</span><br><span class="line">          </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">	</span><br><span class="line">	//完成数据驱动注册</span><br><span class="line">	</span><br><span class="line">  public static synchronized void registerDriver(java.sql.Driver driver,</span><br><span class="line">            DriverAction da)</span><br><span class="line">        throws SQLException &#123;</span><br><span class="line">        ...</span><br><span class="line">        /* Register the driver if it has not already been added to our list */</span><br><span class="line">        registeredDrivers.addIfAbsent(new DriverInfo(driver, da));</span><br><span class="line">        ...</span><br><span class="line">      </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">// com.mysql.cj.jdbc.NonRegisteringDriver#connect</span><br><span class="line">//  Connection con = aDriver.driver.connect(url, info);</span><br><span class="line"></span><br><span class="line">  public java.sql.Connection connect(String url, Properties info) throws SQLException &#123;</span><br><span class="line"></span><br><span class="line">          ConnectionUrl conStr = ConnectionUrl.getConnectionUrlInstance(url, info);</span><br><span class="line">          switch (conStr.getType()) &#123;</span><br><span class="line">              case SINGLE_CONNECTION:</span><br><span class="line">                  return com.mysql.cj.jdbc.ConnectionImpl.getInstance(conStr.getMainHost());</span><br><span class="line"></span><br><span class="line">              case LOADBALANCE_CONNECTION:</span><br><span class="line">                  return LoadBalancedConnectionProxy.createProxyInstance((LoadbalanceConnectionUrl) conStr);</span><br><span class="line"></span><br><span class="line">              case FAILOVER_CONNECTION:</span><br><span class="line">                  return FailoverConnectionProxy.createProxyInstance(conStr);</span><br><span class="line"></span><br><span class="line">              case REPLICATION_CONNECTION:</span><br><span class="line">                  return ReplicationConnectionProxy.createProxyInstance((ReplicationConnectionUrl) conStr);</span><br><span class="line"></span><br><span class="line">              default:</span><br><span class="line">                  return null;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+
+<p>com.mysql.cj.jdbc.NonRegisteringDriver#connect 方法根据Url 中的scheme 规则 返回对应的Connection对象；</p>
+<p>下面是MySQL的几种连接协议：</p>
+<p>SINGLE_CONNECTION：单一数据库连接；</p>
+<p>jdbc:mysql://localhost:3306/conan  我这里就是一个主机而已；</p>
+<p>LOADBALANCE_CONNECTION： 负载均衡连接；可以是一个集群，里面有很多主机地址；</p>
+<p>jdbc:mysql://localhost:3306,[host]:[port],…/[database]</p>
+<p>FAILOVER_CONNECTION ：Failover协议，不知道怎么翻译比较好，如果主机失败，就连接到从机上；</p>
+<p>jdbc:mysql:loadbalance:[host]:[port],…/[database]</p>
+<p>REPLICATION_CONNECTION ：Replication的思想是将数据在集群的多个节点同步、备份，以提高集群数据的可用性；</p>
+<p>jdbc:mysql:replication:[host]:[port],…/[database]</p>
+<p>上面的connect（）方法，根据URL的scheme类型得到不同的Connection，只有SINGLE_CONNECTION类型，是直接创建了一个ConnectionImpl的实例，其他的都是通过动态代理的方式生成Connection; 这就是上一篇为什么总结动态代理的一个原因；</p>
+<h2 id="Statement"><a href="#Statement" class="headerlink" title="Statement"></a>Statement</h2><p>获取到Connection之后说明已经连接上数据库了，接下来我们可以通过connection获取statement接口的实例，来执行sql和获取ResultSet;</p>
+<p> Statement 是一个接口；</p>
+<p> PreparedStatement 也是一个接口，而且继承了Statement；</p>
+<p> CallableStatement 也是一个接口，而且继承了PreparedStatement；</p>
+<h4 id="这里我们就直接以最简单的SINGLE-CONNECTION协议的方式来往下看"><a href="#这里我们就直接以最简单的SINGLE-CONNECTION协议的方式来往下看" class="headerlink" title="这里我们就直接以最简单的SINGLE_CONNECTION协议的方式来往下看"></a>这里我们就直接以最简单的SINGLE_CONNECTION协议的方式来往下看</h4><h3 id="Statement-1"><a href="#Statement-1" class="headerlink" title="Statement"></a>Statement</h3><p>SINGLE_CONNECTION协议下，获取到的Connection真正的实现是ConnectionImpl；</p>
+<p>可以通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">createStatement()  获取默认配置的Statement的实现StatementImpl</span><br><span class="line"></span><br><span class="line">createStatement(int resultSetType, int resultSetConcurrency)  </span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">* resultSetType  ResultSet.TYPE_FORWARD_ONLY 默认的只能向前滚动；</span><br><span class="line">* 					          TYPE_SCROLL_INSENSITIVE 双向滚动，但不及时更新，在查询过程中，如果其他线程更新数据也可以查询不到；</span><br><span class="line">* 					          TYPE_SCROLL_SENSITIVE   双向滚动，及时更新，在查询过程中，如果其他线程更新数据也可以查询到；</span><br><span class="line">* 					          </span><br><span class="line">* resultSetConcurrency  ResultSet.CONCUR_READ_ONLY  并发性：ResultSet 只能Read</span><br><span class="line">*                                 CONCUR_UPDATABLE  并发性：ResultSet 支持更新</span><br><span class="line">*                                 </span><br><span class="line">* resultSetHoldability  只能是 java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT 否则报错，查看代码，只有坚持是不是该类型，也没设置到ResultSet上；</span><br><span class="line">*/</span><br><span class="line">createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)</span><br></pre></td></tr></table></figure>
+
+<p>三个创建statement的方法最终都是创建了一个StatementImpl实例，并把并设置其ResultSet的两个属性resultSetType，resultSetConcurrency；</p>
+<p>但是并没有看到设置resultSetHoldability的属性；</p>
+<p>Statement 接口方法可以分为以下几类 </p>
+<p>设置类方法</p>
+<p>设置类的方法，没什么好多解释的，直接看方法名称就知道什么意思；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">setFetchSize(int rows)</span><br><span class="line">setFetchDirection(ResultSet.FETCH_FORWARD);</span><br><span class="line">setMaxRows(int max)</span><br><span class="line">setLargeMaxRows(long max)</span><br><span class="line">setQueryTimeout(int seconds)</span><br><span class="line">setCursorName(String name)</span><br><span class="line">close()</span><br></pre></td></tr></table></figure>
+
+<p>excute类方法</p>
+<p>Statement接口不能设置sql参数,其中execute方法是用来执行sql的方法，execute ，executeUpdate 一系列的方法最终都会和autoGeneratedKeys这个参参数有关，最简单的是使用默认的autoGeneratedKeys；</p>
+<p>当Sql语句是Insert,autoGeneratedKeys 的RETURN_GENERATED_KEYS、NO_GENERATED_KEYS ，关系到自增属性字段的查询问题，只有配置了RETURN_GENERATED_KEYS属性的时候，才可以使用getGeneratedKeys（） 方法获取ResultSet。然后获取自增属性字段的值；</p>
+<p>PreparedStatement, CallableStatement 的实例对象不能调用下面一系列的excute方法；</p>
+<p>Statement 执行execute的时候就已经可以获取结果集；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">execute(String sql)</span><br><span class="line">boolean execute(String sql, int autoGeneratedKeys)</span><br><span class="line">executeUpdate(String sql)</span><br><span class="line">executeLargeUpdate(String sql, int autoGeneratedKeys)</span><br><span class="line">executeLargeUpdate(String sql, int columnIndexes[])</span><br></pre></td></tr></table></figure>
+
+<p>批处理方法（前提是connection 关闭自动提交功能）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">addBatch( String sql )</span><br><span class="line">clearBatch()</span><br><span class="line">int[] executeBatch() </span><br><span class="line">long[] executeLargeBatch()</span><br></pre></td></tr></table></figure>
+
+<p>获取类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">boolean getMoreResults()</span><br><span class="line">ResultSet getResultSet()</span><br><span class="line">ResultSet getGeneratedKeys()</span><br></pre></td></tr></table></figure>
+
+<h5 id="实例代码"><a href="#实例代码" class="headerlink" title="实例代码"></a>实例代码</h5><p>自增属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> String creatSql = &quot;insert into users( name, password, email, birthday) values ( \&quot;222\&quot;,\&quot;222\&quot;,\&quot;2222\&quot;,\&quot;222222\&quot;)&quot;; //其中有一个id 是自增属性</span><br><span class="line">   Statement statement = connection.createStatement();</span><br><span class="line">   int i = statement.executeUpdate(creatSql, Statement.NO_GENERATED_KEYS);</span><br><span class="line">ResultSet resultSet = statement.getResultSet();</span><br><span class="line">   resultSet.next();</span><br><span class="line">   int anInt = resultSet.getInt(1);</span><br></pre></td></tr></table></figure>
+
+<p>批处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">connection.setAutoCommit(false);</span><br><span class="line">for(..)&#123;</span><br><span class="line">	statement.addBatch(sql); //如果是PreparedStatement 也是类似</span><br><span class="line">&#125;</span><br><span class="line">statement.executeBatch(); //statement. executeLargeBatch();</span><br></pre></td></tr></table></figure>
+
+<h4 id="ResultSet"><a href="#ResultSet" class="headerlink" title="ResultSet"></a>ResultSet</h4><p>ResultSet 作为查询放回的结果集，有必要也介绍一下其中的方法；</p>
+<p>ResultSet 可以分为如下几类方法</p>
+<p>查询字段valvue类:此类方法很多，这里不一一列举</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">int getInt(int columnIndex) </span><br><span class="line">int getInt(String columnLabel)</span><br><span class="line"></span><br><span class="line">String getString(int columnIndex)</span><br><span class="line">String getString(String columnLabel)</span><br></pre></td></tr></table></figure>
+
+<p>操作游标类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">boolean next() </span><br><span class="line">boolean previous() </span><br><span class="line">boolean absolute( int row )</span><br><span class="line">boolean relative( int rows ) </span><br><span class="line">void afterLast() </span><br><span class="line">void moveToInsertRow()</span><br></pre></td></tr></table></figure>
+
+<p>修改系列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void insertRow()</span><br><span class="line">boolean rowInserted() //增加了返回而已</span><br><span class="line">void updateRow()</span><br><span class="line">boolean rowUpdated()</span><br><span class="line">void deleteRow()</span><br><span class="line">boolean rowDeleted()</span><br></pre></td></tr></table></figure>
+
+<p>修改系列的方法相对特别，查询的时候还可以操作数据库；前面说过的resultSetConcurrency属性  ResultSet.CONCUR_READ_ONLY  并发性：ResultSet 只能Read ，CONCUR_UPDATABLE  并发性：ResultSet 支持更新；如果需要修改就必须设置为CONCUR_UPDATABLE；</p>
+<p>如果需要插入行，得先执行moveToInsertRow()；示例代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">String sql = &quot;select u.name ,u.password,u.birthday,u.id from users as u&quot;;</span><br><span class="line">       PreparedStatement statement = connection.prepareStatement(sql,ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);</span><br><span class="line">       statement.setFetchSize(1);</span><br><span class="line">       statement.setFetchDirection(ResultSet.FETCH_FORWARD);</span><br><span class="line"> resultSet.moveToInsertRow();</span><br><span class="line"> resultSet.updateInt(&quot;id&quot;,14);</span><br><span class="line"> resultSet.updateString(&quot;name&quot;,&quot;xxxxx&quot;);</span><br><span class="line"> resultSet.insertRow();</span><br></pre></td></tr></table></figure>
+
+<h3 id="PreparedStatement"><a href="#PreparedStatement" class="headerlink" title="PreparedStatement"></a>PreparedStatement</h3><p>PreparedStatement 区别于 Statement ，PreparedStatement可以在执行之前修改sql语句中的占位符？参数；有一系列的setXxx（）方法；</p>
+<p>设置好sql中的数据之后，执行execute()方法执行sql;</p>
+<h3 id="CallableStatement"><a href="#CallableStatement" class="headerlink" title="CallableStatement"></a>CallableStatement</h3><p>CallableStatement 是用来执行存储过程的Statement;</p>
+<p>有一系列的方法用于设置输入参数，还有一系列方法用于获取输出参数；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">CREATE PROCEDURE add_pro(a int,b int,out sum int)</span><br><span class="line">BEGIN</span><br><span class="line">set sum = a + b;</span><br><span class="line">END;</span><br><span class="line"></span><br><span class="line">====================================================================================</span><br><span class="line">            CallableStatement cstmt = conn.prepareCall(&quot;&#123;call add_pro(?,?,?)&#125;&quot;)</span><br><span class="line"></span><br><span class="line">            cstmt.setInt(1,4);</span><br><span class="line">            cstmt.setInt(2,5);</span><br><span class="line">            cstmt.registerOutParameter(3,Types.INTEGER);</span><br><span class="line">            cstmt.execute();</span><br><span class="line">            System.out.println(&quot;执行结果是:&quot;+cstmt.getInt(3));</span><br></pre></td></tr></table></figure>
+
+<h2 id="事务管理"><a href="#事务管理" class="headerlink" title="事务管理"></a>事务管理</h2><p>JDBC的事务操作是基于Connection接口如下几个方法展开的；</p>
+<p>采用这些API设计的一套编程式事务管理方式；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void commit()</span><br><span class="line">void rollback()</span><br><span class="line">void rollback(Savepoint savepoint)</span><br><span class="line">Savepoint setSavepoint()</span><br><span class="line">Savepoint setSavepoint(String name)</span><br></pre></td></tr></table></figure>
+
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: 'location.href', // 可选。默认为 location.href
+  owner: 'zhangwenhao2013',
+  repo: 'zhangwenhao2013.github.io',
+  oauth: {
+    client_id: 'ac818ef7cc637fa01a12',
+    client_secret: '046c3ecb4df38f18814f9b2a6fe1efaaada1aada',
+  },
+})
+gitment.render('container')
+</script>
+
+<p>GitHub<a href="https://gh-oauth.imsun.net/" target="_blank" rel="noopener">登录不了</a>?信任该网站之后再登录。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JAVA/" rel="tag"># JAVA</a>
+          
+            <a href="/tags/JDBC/" rel="tag"># JDBC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/03/代理模式/" rel="next" title="代理模式">
+                <i class="fa fa-chevron-left"></i> 代理模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/dl.jpeg" alt="zhangwenhao">
+          <p class="site-author-name" itemprop="name">zhangwenhao</p>
+           
+              <p class="site-description motion-element" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#连接数据库"><span class="nav-number">1.</span> <span class="nav-text">连接数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#驱动方式"><span class="nav-number">1.1.</span> <span class="nav-text">驱动方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#驱动文件"><span class="nav-number">1.2.</span> <span class="nav-text">驱动文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库连接Connection"><span class="nav-number">1.3.</span> <span class="nav-text">数据库连接Connection</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Statement"><span class="nav-number">2.</span> <span class="nav-text">Statement</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#这里我们就直接以最简单的SINGLE-CONNECTION协议的方式来往下看"><span class="nav-number">2.0.1.</span> <span class="nav-text">这里我们就直接以最简单的SINGLE_CONNECTION协议的方式来往下看</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Statement-1"><span class="nav-number">2.1.</span> <span class="nav-text">Statement</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实例代码"><span class="nav-number">2.1.0.1.</span> <span class="nav-text">实例代码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ResultSet"><span class="nav-number">2.1.1.</span> <span class="nav-text">ResultSet</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#PreparedStatement"><span class="nav-number">2.2.</span> <span class="nav-text">PreparedStatement</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CallableStatement"><span class="nav-number">2.3.</span> <span class="nav-text">CallableStatement</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务管理"><span class="nav-number">3.</span> <span class="nav-text">事务管理</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
