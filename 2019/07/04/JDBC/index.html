@@ -103,7 +103,7 @@
 <meta property="og:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2019/07/04/JDBC/jdbc.jpeg">
-<meta property="og:updated_time" content="2019-07-05T10:00:01.829Z">
+<meta property="og:updated_time" content="2019-07-05T10:05:49.494Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JDBC--基于MySQL">
 <meta name="twitter:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;">
@@ -445,7 +445,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">CREATE PROCEDURE add_pro(a int,b int,out sum int)</span><br><span class="line">BEGIN</span><br><span class="line">set sum = a + b;</span><br><span class="line">END;</span><br><span class="line"></span><br><span class="line">====================================================================================</span><br><span class="line">            CallableStatement cstmt = conn.prepareCall(&quot;&#123;call add_pro(?,?,?)&#125;&quot;)</span><br><span class="line"></span><br><span class="line">            cstmt.setInt(1,4);</span><br><span class="line">            cstmt.setInt(2,5);</span><br><span class="line">            cstmt.registerOutParameter(3,Types.INTEGER);</span><br><span class="line">            cstmt.execute();</span><br><span class="line">            System.out.println(&quot;执行结果是:&quot;+cstmt.getInt(3));</span><br></pre></td></tr></table></figure>
 
 <h2 id="事务管理"><a href="#事务管理" class="headerlink" title="事务管理"></a>事务管理</h2><p>JDBC的事务操作是基于Connection接口如下几个方法展开的；</p>
-<p>采用这些API设计的一套编程式事务管理方式；</p>
+<p>采用这些API设计的一套编程式事务管理方式；其中connection自动提交应该设置为 false ;connection.setAutoCommit(false);</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void commit()</span><br><span class="line">void rollback()</span><br><span class="line">void rollback(Savepoint savepoint)</span><br><span class="line">Savepoint setSavepoint()</span><br><span class="line">Savepoint setSavepoint(String name)</span><br></pre></td></tr></table></figure>
 
 <div id="container"></div>
