@@ -103,7 +103,7 @@
 <meta property="og:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2019/07/04/JDBC/jdbc.jpeg">
-<meta property="og:updated_time" content="2019-07-05T10:05:49.494Z">
+<meta property="og:updated_time" content="2019-07-08T02:26:13.103Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JDBC--基于MySQL">
 <meta name="twitter:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;">
@@ -373,6 +373,9 @@
 
 <p>这里我用的是mysql的数据库，使用的是Java 8 的环境;</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --&gt;</span><br><span class="line">       &lt;dependency&gt;</span><br><span class="line">           &lt;groupId&gt;mysql&lt;/groupId&gt;</span><br><span class="line">           &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">           &lt;version&gt;8.0.13&lt;/version&gt;</span><br><span class="line">       &lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>粗略的总结写JDBC的使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 获取Connection</span><br><span class="line">Connection connection = DriverManager.getConnection(dbUrl, name, pwd)；</span><br><span class="line"></span><br><span class="line">// 获取Statement</span><br><span class="line">Statement statement = connection.createStatement();</span><br><span class="line">PrepareStatement statement = connection.prepareStatement(sql);</span><br><span class="line"></span><br><span class="line">// execute SQL</span><br><span class="line">statement.execute</span><br><span class="line"></span><br><span class="line">// 获取结果集</span><br><span class="line">ResultSet rs = statement.getResultSet();</span><br></pre></td></tr></table></figure>
 
 <h2 id="连接数据库"><a href="#连接数据库" class="headerlink" title="连接数据库"></a>连接数据库</h2><h3 id="驱动方式"><a href="#驱动方式" class="headerlink" title="驱动方式"></a>驱动方式</h3><p>连接驱动数据库：这里采用直接通过类加载的方式加载驱动文件，不推荐使用DriverManager.registerDriver（）的方式驱动；</p>
 <p>缺点：使用DriverManager.registerDriver（）驱动的方式会驱动文件会在内存中注册两次，重复注册；</p>
