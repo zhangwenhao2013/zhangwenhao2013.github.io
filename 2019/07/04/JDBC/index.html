@@ -103,7 +103,7 @@
 <meta property="og:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2019/07/04/JDBC/jdbc.jpeg">
-<meta property="og:updated_time" content="2019-07-08T02:26:13.103Z">
+<meta property="og:updated_time" content="2019-07-08T05:46:16.901Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JDBC--基于MySQL">
 <meta name="twitter:description" content="JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API; 所有数据库都支持的一套链接方式； 高级的持久化框架也是基于JDBC来实现的，比如Mybatis;">
@@ -402,6 +402,17 @@
 <p>REPLICATION_CONNECTION ：Replication的思想是将数据在集群的多个节点同步、备份，以提高集群数据的可用性；</p>
 <p>jdbc:mysql:replication:[host]:[port],…/[database]</p>
 <p>上面的connect（）方法，根据URL的scheme类型得到不同的Connection，只有SINGLE_CONNECTION类型，是直接创建了一个ConnectionImpl的实例，其他的都是通过动态代理的方式生成Connection; 这就是上一篇为什么总结动态代理的一个原因；</p>
+<p>LOADBALANCE_CONNECTION,FAILOVER_CONNECTION,REPLICATION_CONNECTION:</p>
+<p>其最终都是通过代理的方式创建Connection；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ConnectionUrl conStr = ConnectionUrl.getConnectionUrlInstance(url, info);</span><br></pre></td></tr></table></figure>
+
+<p>以LOADBALANCE_CONNECTION类型为例：</p>
+<p>LoadBalancedConnectionProxy.createProxyInstance  实现了InvocationHandler接口；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">                            </span><br><span class="line">LoadBalancedConnectionProxy.createProxyInstance((LoadbalanceConnectionUrl) conStr);</span><br><span class="line"></span><br><span class="line"> public static LoadBalancedConnection createProxyInstance(LoadbalanceConnectionUrl connectionUrl) throws SQLException &#123;</span><br><span class="line">        LoadBalancedConnectionProxy connProxy = new LoadBalancedConnectionProxy(connectionUrl);</span><br><span class="line">        return (LoadBalancedConnection) java.lang.reflect.Proxy.newProxyInstance(LoadBalancedConnection.class.getClassLoader(), INTERFACES_TO_PROXY, connProxy);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>代理类真正代理的被代理对象是com.mysql.cj.conf.url.LoadbalanceConnectionUrl；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">case LOADBALANCE_CONNECTION:</span><br><span class="line">                           connectionString = (ConnectionUrl) Util.getInstance(&quot;com.mysql.cj.conf.url.LoadbalanceConnectionUrl&quot;,</span><br><span class="line">                                   new Class&lt;?&gt;[] &#123; ConnectionUrlParser.class, Properties.class &#125;, new Object[] &#123; connStrParser, info &#125;, null);</span><br><span class="line">                           break;</span><br></pre></td></tr></table></figure>
+
 <h2 id="Statement"><a href="#Statement" class="headerlink" title="Statement"></a>Statement</h2><p>获取到Connection之后说明已经连接上数据库了，接下来我们可以通过connection获取statement接口的实例，来执行sql和获取ResultSet;</p>
 <p> Statement 是一个接口；</p>
 <p> PreparedStatement 也是一个接口，而且继承了Statement；</p>
