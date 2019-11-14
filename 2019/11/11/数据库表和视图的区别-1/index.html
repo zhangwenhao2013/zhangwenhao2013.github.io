@@ -104,7 +104,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2019/11/11/数据库表和视图的区别-1/timg.jpeg">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2019/11/11/数据库表和视图的区别-1/WechatIMG19.png">
-<meta property="og:updated_time" content="2019-11-12T08:12:15.196Z">
+<meta property="og:updated_time" content="2019-11-14T01:36:37.729Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据库表&#x2F;视图&#x2F;同义词的区别">
 <meta name="twitter:description" content="在做需求的时候发现,正常来讲的话查询的是数据库的表,但是有时查询的可能又是视图,还有可能查询的是一个表的同义词;表/视图/同义词 他们有什么关联,为什么会有这么三种定义呢?">
@@ -381,6 +381,11 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DROP VIEW view_name</span><br></pre></td></tr></table></figure>
 
 <h2 id="同义词"><a href="#同义词" class="headerlink" title="同义词"></a>同义词</h2><h3 id="同义词的作用"><a href="#同义词的作用" class="headerlink" title="同义词的作用"></a>同义词的作用</h3><p>同义词使用场景是:两个独立的数据库用户,用户A想访问用户B数据库表的时候,就可以创建同义词,提供给A访问B的数据库,只限于查询的操作;</p>
+<p>大概操作:</p>
+<ul>
+<li>1: B 用户授权A 用户;</li>
+<li>2: A 用户数据库创建 B 数据库的同义词;</li>
+</ul>
 <p>使用同义词之前要确保用户拥有访问该对象的权限。</p>
 <p>当公有对象（公有同义词）和本地对象具有相同的名称时，本地对象优先</p>
 <p>公有同义词：DBA建立，所有用户共同拥有。CREATE PUBLIC SYNONYM …</p>
