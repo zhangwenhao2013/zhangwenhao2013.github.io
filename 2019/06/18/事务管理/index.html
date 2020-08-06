@@ -1,38 +1,458 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-{% block page_class %}page-post-detail{% endblock %}
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="事务管理可以分为编程式事务管理和声明式事务管理。编程式事务管理:类似命令式的事务管理，只是把涉及到事务操作的逻辑抽取成目标类，使用者只需要关注数据库操作； 声明式事务管理:声明式编程的事务管理方式，通过响应的配置，告诉让框架来我们需要达到什么样的效果，让框架来管理事务，而不需要使用者手动管理；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="事务管理">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="事务管理可以分为编程式事务管理和声明式事务管理。编程式事务管理:类似命令式的事务管理，只是把涉及到事务操作的逻辑抽取成目标类，使用者只需要关注数据库操作； 声明式事务管理:声明式编程的事务管理方式，通过响应的配置，告诉让框架来我们需要达到什么样的效果，让框架来管理事务，而不需要使用者手动管理；">
+<meta property="og:locale">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/transaction.jpg">
+<meta property="article:published_time" content="2019-06-18T07:19:01.000Z">
+<meta property="article:modified_time" content="2019-07-08T07:19:21.295Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="JAVA">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="SPRING">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhangwenhao2013.github.io/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/transaction.jpg">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
 
 
-{% block content %}
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+  <title>事务管理 | 老柯南</title>
+  
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          事务管理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-18 15:19:01" itemprop="dateCreated datePublished" datetime="2019-06-18T15:19:01+08:00">2019-06-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-08 15:19:21" itemprop="dateModified" datetime="2019-07-08T15:19:21+08:00">2019-07-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/%E6%95%B0%E6%8D%AE%E5%BA%93/SPRING/" itemprop="url" rel="index"><span itemprop="name">SPRING</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>事务管理可以分为编程式事务管理和声明式事务管理。<br>编程式事务管理:类似命令式的事务管理，只是把涉及到事务操作的逻辑抽取成目标类，使用者只需要关注数据库操作；</p>
+<p>声明式事务管理:声明式编程的事务管理方式，通过响应的配置，告诉让框架来我们需要达到什么样的效果，让框架来管理事务，而不需要使用者手动管理；</p>
+<p><img src="/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/transaction.jpg" alt="网络图片"></p>
+<a id="more"></a>
+
+<h2 id="编程式事务管理"><a href="#编程式事务管理" class="headerlink" title="编程式事务管理"></a>编程式事务管理</h2><h3 id="手动编写"><a href="#手动编写" class="headerlink" title="手动编写"></a>手动编写</h3><p>不使用框架，纯粹开发者自己编写，可以使用Connection接口的commit，rollback方法，自行判断异常等逻辑进行手动事务管理；</p>
+<h3 id="Spring-事务模板"><a href="#Spring-事务模板" class="headerlink" title="Spring 事务模板"></a>Spring 事务模板</h3><p>纯粹的开发自己编写，会存在大量的样板代码，比如Connection，statement的关闭等；Spring 提供和很多模板代码，可以解决这些问题，其中<br>Spring 就提供了事务的模板代码；</p>
+<p>Spring 内部封装了一个事务管理的TransactionTemplate模板类，其内部的transactionManager专门负责事务管理，其最终也是调用Connection的commit，rollback方法进行事务管理；</p>
+<p>下面的代码用到了Spring 依赖注入，注入了一个TransactionTemplate的实例；要执行的数据库操作，都在模板类中执行；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class AccountServiceImplPragram implements AccountService &#123;</span><br><span class="line"></span><br><span class="line">    private AccountDao accountDao;</span><br><span class="line">    private TransactionTemplate transactionTemplate;</span><br><span class="line"></span><br><span class="line">    public void transfer(final String out, final String in, final Double money) &#123;</span><br><span class="line">        transactionTemplate.execute(new TransactionCallbackWithoutResult() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            protected void doInTransactionWithoutResult(TransactionStatus status) &#123;</span><br><span class="line">                accountDao.inMoney(in, money);</span><br><span class="line">&#x2F;&#x2F;                int i &#x3D; 1 &#x2F; 0;</span><br><span class="line">                accountDao.outMoney(out, money);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setAccountDao(AccountDao accountDao) &#123;</span><br><span class="line">        this.accountDao &#x3D; accountDao;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setTransactionTemplate(TransactionTemplate transactionTemplate) &#123;</span><br><span class="line">        this.transactionTemplate &#x3D; transactionTemplate;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="声明式事务管理"><a href="#声明式事务管理" class="headerlink" title="声明式事务管理"></a>声明式事务管理</h2><p>即使Spring 提供了事务管理的模板，当时事务管理还是有点繁琐，而且这种事务管理方式有一定的侵入性；</p>
+<p>能否有一种方式，可以让Service只是普通的Service，在调用DAO层的时候无需关心其事务问题；</p>
+<p>有！ Spring 提供了如下三中方式，解决这个问题，其中基于注解的方式，和基于AspectJ xml，虽然还是有一定的侵入性，但是这种方式极其简单，是日常开发常用的事务管理方式；</p>
+<p>基于TransactionProxyFactoryBean代理的方式，使用不方便，而且还具有侵入性，通常不使用；</p>
+<h3 id="基于-TransactionProxyFactoryBean代理的Service方式事务管理"><a href="#基于-TransactionProxyFactoryBean代理的Service方式事务管理" class="headerlink" title="基于 TransactionProxyFactoryBean代理的Service方式事务管理"></a>基于 TransactionProxyFactoryBean代理的Service方式事务管理</h3><p>这种基于 TransactionProxyFactoryBean代理的Service方式，每次增加一个Service就必须增加一个相对的TransactionProxyFactoryBean用于增强对应的Service类，使用起来不方便；然后将这个TransactionProxyFactoryBean注入到Controller中，具有侵入性；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">@RunWith(SpringJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(locations &#x3D; &quot;classpath:springconfig_statement1.xml&quot;)</span><br><span class="line">public class TestTransactionManagerStatement1 &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name &#x3D; &quot;transactionProxyFactoryBean&quot;)</span><br><span class="line">    private AccountService accountService;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testTransactionManagerStatement1() &#123;</span><br><span class="line"></span><br><span class="line">        accountService.transfer(&quot;aaa&quot;, &quot;bbb&quot;, 200d);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">   &lt;bean id&#x3D;&quot;transactionManager&quot; class&#x3D;&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;dataSource&quot; ref&#x3D;&quot;dataSource&quot;&#x2F;&gt;</span><br><span class="line">   &lt;&#x2F;bean&gt;</span><br><span class="line">   &lt;bean id&#x3D;&quot;transactionProxyFactoryBean&quot;</span><br><span class="line">          class&#x3D;&quot;org.springframework.transaction.interceptor.TransactionProxyFactoryBean&quot;&gt;</span><br><span class="line">        &lt;!--配置注入要增强的类--&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;target&quot; ref&#x3D;&quot;accountService&quot;&#x2F;&gt;</span><br><span class="line">        &lt;!--配置注入transactionManager--&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;transactionManager&quot; ref&#x3D;&quot;transactionManager&quot;&#x2F;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;transactionAttributes&quot;&gt;</span><br><span class="line">            &lt;props&gt;</span><br><span class="line">                &lt;!--key 可以是 instert update transfer --&gt;</span><br><span class="line">                &lt;!--value 格式</span><br><span class="line">                PROPAGATION:事务的传播级别</span><br><span class="line">                ISOLATION :事务的隔离级别</span><br><span class="line">                readOnly : 只读 (不可以进行 instert  update delete)</span><br><span class="line">                -Exception  : 发生哪些异常执行回滚</span><br><span class="line">                +Exception  : 发生哪些异常 不执行回滚</span><br><span class="line"></span><br><span class="line">                 &lt;prop key&#x3D;&quot;transfer&quot;&gt;PROPAGATION_REQUIRED,+java.lang.ArithmeticException&lt;&#x2F;prop&gt;</span><br><span class="line">                --&gt;</span><br><span class="line">                &lt;prop key&#x3D;&quot;transfer&quot;&gt;PROPAGATION_REQUIRED&lt;&#x2F;prop&gt;</span><br><span class="line">            &lt;&#x2F;props&gt;</span><br><span class="line">        &lt;&#x2F;property&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="基于AspectJ-xml-配置声明式的事务管理"><a href="#基于AspectJ-xml-配置声明式的事务管理" class="headerlink" title="基于AspectJ xml 配置声明式的事务管理"></a>基于AspectJ xml 配置声明式的事务管理</h3><p>通过Spring AOP 织入的方式给需要添加事务管理的方法增加事务管理。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">@RunWith(SpringJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(locations &#x3D; &quot;classpath:springconfig_statement2.xml&quot;)</span><br><span class="line">public class TestTransactionManagerStatement2 &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name &#x3D; &quot;accountService&quot;)</span><br><span class="line">    private AccountService accountService;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testTransactionManagerStatement2() &#123;</span><br><span class="line"></span><br><span class="line">        accountService.transfer(&quot;aaa&quot;, &quot;bbb&quot;, 200d);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> &lt;tx:advice id&#x3D;&quot;txAdvice&quot; transaction-manager&#x3D;&quot;transactionManager&quot;&gt;</span><br><span class="line">        &lt;tx:attributes&gt;</span><br><span class="line">            &lt;tx:method name&#x3D;&quot;transfer&quot;</span><br><span class="line">                       propagation&#x3D;&quot;REQUIRED&quot;</span><br><span class="line">            &#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;tx:attributes&gt;</span><br><span class="line">    &lt;&#x2F;tx:advice&gt;</span><br><span class="line"></span><br><span class="line">    &lt;aop:config&gt;</span><br><span class="line">        &lt;aop:pointcut id&#x3D;&quot;pointcut1&quot;</span><br><span class="line">                      expression&#x3D;&quot;execution(* com.conan.springtransaction.service.AccountService.transfer(..))&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;aop:config&gt;</span><br><span class="line"></span><br><span class="line">    &lt;aop:config&gt;</span><br><span class="line">        &lt;aop:advisor advice-ref&#x3D;&quot;txAdvice&quot; pointcut-ref&#x3D;&quot;pointcut1&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;aop:config&gt;</span><br><span class="line">    </span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<h3 id="基于注解方式的声明式事务管理"><a href="#基于注解方式的声明式事务管理" class="headerlink" title="基于注解方式的声明式事务管理"></a>基于注解方式的声明式事务管理</h3><p>如下代码Spring是采用xml的配置方式，如果采用Java config配置方式，会更加简洁，只需要关注Service类上的@Transactional就好；<br>通过设置@Transactional的属性就能达到事务管理的目的；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">@RunWith(SpringJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(locations &#x3D; &quot;classpath:springconfig_statement3.xml&quot;)</span><br><span class="line">public class TestTransactionManagerStatement3 &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name &#x3D; &quot;accountService&quot;)</span><br><span class="line">    private AccountService accountService;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testTransactionManagerStatement3() &#123;</span><br><span class="line"></span><br><span class="line">        accountService.transfer(&quot;aaa&quot;, &quot;bbb&quot;, 200d);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Transactional(propagation &#x3D; Propagation.REQUIRED)</span><br><span class="line">public class AccountServiceImplStatement3 implements AccountService &#123;</span><br><span class="line"></span><br><span class="line">    private AccountDaoImplStatement1 accountDao;</span><br><span class="line"></span><br><span class="line">    public void transfer(String out, String in, Double money) &#123;</span><br><span class="line">        accountDao.inMoney(in, money);</span><br><span class="line">        int i &#x3D; 1 &#x2F; 0;</span><br><span class="line">        accountDao.outMoney(out, money);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setAccountDao(AccountDaoImplStatement1 accountDao) &#123;</span><br><span class="line">        this.accountDao &#x3D; accountDao;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  &lt;!--引入实现文件--&gt;</span><br><span class="line">    &lt;context:property-placeholder location&#x3D;&quot;classpath:jdbc.properties&quot;&#x2F;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--C3P0 连接池--&gt;</span><br><span class="line">    &lt;bean id&#x3D;&quot;dataSource&quot; class&#x3D;&quot;com.mchange.v2.c3p0.ComboPooledDataSource&quot;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;driverClass&quot; value&#x3D;&quot;$&#123;jdbc.driverClass&#125;&quot;&#x2F;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;jdbcUrl&quot; value&#x3D;&quot;$&#123;jdbc.url&#125;&quot;&#x2F;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;user&quot; value&#x3D;&quot;$&#123;jdbc.username&#125;&quot;&#x2F;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;password&quot; value&#x3D;&quot;$&#123;jdbc.password&#125;&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean id&#x3D;&quot;accountDao&quot; class&#x3D;&quot;com.conan.springtransaction.dao.AccountDaoImplStatement1&quot;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;dataSource&quot; ref&#x3D;&quot;dataSource&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean id&#x3D;&quot;accountService&quot; class&#x3D;&quot;com.conan.springtransaction.service.AccountServiceImplStatement3&quot;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;accountDao&quot; ref&#x3D;&quot;accountDao&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean id&#x3D;&quot;transactionManager&quot; class&#x3D;&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;dataSource&quot; ref&#x3D;&quot;dataSource&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;tx:annotation-driven transaction-manager&#x3D;&quot;transactionManager&quot;&#x2F;&gt; &#x2F;&#x2F;激活注解</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+
+<div id="container"></div>
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+
+<script>
+var gitment = new Gitment({
+  id: 'location.href', // 可选。默认为 location.href
+  owner: 'zhangwenhao2013',
+  repo: 'zhangwenhao2013.github.io',
+  oauth: {
+    client_id: 'ac818ef7cc637fa01a12',
+    client_secret: '046c3ecb4df38f18814f9b2a6fe1efaaada1aada',
+  },
+})
+gitment.render('container')
+</script>
+
+<p>GitHub<a target="_blank" rel="noopener" href="https://gh-oauth.imsun.net/">登录不了</a>?信任该网站之后再登录。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JAVA/" rel="tag"># JAVA</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/SPRING/" rel="tag"># SPRING</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/" rel="next" title="Spring_基础装配">
+      Spring_基础装配 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E7%A8%8B%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">编程式事务管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%8B%E5%8A%A8%E7%BC%96%E5%86%99"><span class="nav-number">1.1.</span> <span class="nav-text">手动编写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-%E4%BA%8B%E5%8A%A1%E6%A8%A1%E6%9D%BF"><span class="nav-number">1.2.</span> <span class="nav-text">Spring 事务模板</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">声明式事务管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-TransactionProxyFactoryBean%E4%BB%A3%E7%90%86%E7%9A%84Service%E6%96%B9%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">基于 TransactionProxyFactoryBean代理的Service方式事务管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EAspectJ-xml-%E9%85%8D%E7%BD%AE%E5%A3%B0%E6%98%8E%E5%BC%8F%E7%9A%84%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">基于AspectJ xml 配置声明式的事务管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%E7%9A%84%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.</span> <span class="nav-text">基于注解方式的声明式事务管理</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

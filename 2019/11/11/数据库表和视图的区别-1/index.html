@@ -1,38 +1,464 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-{% block page_class %}page-post-detail{% endblock %}
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在做需求的时候发现,正常来讲的话查询的是数据库的表,但是有时查询的可能又是视图,还有可能查询的是一个表的同义词;表&#x2F;视图&#x2F;同义词 他们有什么关联,为什么会有这么三种定义呢?">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库表&#x2F;视图&#x2F;同义词的区别">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="在做需求的时候发现,正常来讲的话查询的是数据库的表,但是有时查询的可能又是视图,还有可能查询的是一个表的同义词;表&#x2F;视图&#x2F;同义词 他们有什么关联,为什么会有这么三种定义呢?">
+<meta property="og:locale">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/timg.jpeg">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/WechatIMG19.png">
+<meta property="article:published_time" content="2019-11-11T06:07:23.000Z">
+<meta property="article:modified_time" content="2019-11-14T01:36:37.729Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/timg.jpeg">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/">
 
 
-{% block content %}
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+  <title>数据库表/视图/同义词的区别 | 老柯南</title>
+  
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据库表/视图/同义词的区别
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-11-11 14:07:23" itemprop="dateCreated datePublished" datetime="2019-11-11T14:07:23+08:00">2019-11-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-11-14 09:36:37" itemprop="dateModified" datetime="2019-11-14T09:36:37+08:00">2019-11-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在做需求的时候发现,正常来讲的话查询的是数据库的表,但是有时查询的可能又是视图,还有可能查询的是一个表的同义词;表/视图/同义词 他们有什么关联,为什么会有这么三种定义呢?</p>
+<p><img src="/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/timg.jpeg" alt="网络图片"></p>
+<a id="more"></a>
+
+<h2 id="数据库基表"><a href="#数据库基表" class="headerlink" title="数据库基表"></a>数据库基表</h2><p>数据库中的表,统一定义为基表,是常规定义的表;</p>
+<p>在DATAGRIP中表,视图,同义词 分别对应了tables,views,synonyms;</p>
+<p><img src="/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/WechatIMG19.png" alt="DATAGRIP"></p>
+<h2 id="视图"><a href="#视图" class="headerlink" title="视图"></a>视图</h2><p>视图是一条存储起来的 SELECT 语句，是数据的显示方式，通过视图可以限制用户访问行、列、或更新表内容;</p>
+<p>在 SQL 中，视图是基于 SQL 语句的结果集的可视化的表。</p>
+<p>视图包含行和列，就像一个真实的表。视图中的字段就是来自一个或多个数据库中的真实的表中的字段。我们可以向视图添加 SQL 函数、WHERE 以及 JOIN 语句，就像这些来自于某个单一的表;</p>
+<p>比如:创建视图的时候可以增加条件,甚至可以JOIN等;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CREATE VIEW view_name AS</span><br><span class="line">SELECT column_name(s)</span><br><span class="line">FROM table_name</span><br><span class="line">WHERE condition</span><br></pre></td></tr></table></figure>
+
+<h3 id="视图的作用"><a href="#视图的作用" class="headerlink" title="视图的作用"></a>视图的作用</h3><p>视图一般是用来限制用户访问行、列、或更新表内容;起到隔离作用;</p>
+<p>1 :限制行,列: 在创建视图的时候,就不返回要限制的列和行;</p>
+<p>2 :限制更新: 视图不只能查询,不能做更新操作;</p>
+<h3 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h3><p>创建视图语法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CREATE VIEW view_name AS</span><br><span class="line">SELECT column_name(s)</span><br><span class="line">FROM table_name</span><br><span class="line">WHERE condition</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新视图"><a href="#更新视图" class="headerlink" title="更新视图"></a>更新视图</h3><p>更新视图: 创建并更新,覆盖原来的视图;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SQL CREATE OR REPLACE VIEW Syntax</span><br><span class="line">CREATE OR REPLACE VIEW view_name AS</span><br><span class="line">SELECT column_name(s)</span><br><span class="line">FROM table_name</span><br><span class="line">WHERE condition</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="删除视图"><a href="#删除视图" class="headerlink" title="删除视图"></a>删除视图</h3><p>删除视图:SQL DROP VIEW Syntax</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DROP VIEW view_name</span><br></pre></td></tr></table></figure>
+
+<h2 id="同义词"><a href="#同义词" class="headerlink" title="同义词"></a>同义词</h2><h3 id="同义词的作用"><a href="#同义词的作用" class="headerlink" title="同义词的作用"></a>同义词的作用</h3><p>同义词使用场景是:两个独立的数据库用户,用户A想访问用户B数据库表的时候,就可以创建同义词,提供给A访问B的数据库,只限于查询的操作;</p>
+<p>大概操作:</p>
+<ul>
+<li>1: B 用户授权A 用户;</li>
+<li>2: A 用户数据库创建 B 数据库的同义词;</li>
+</ul>
+<p>使用同义词之前要确保用户拥有访问该对象的权限。</p>
+<p>当公有对象（公有同义词）和本地对象具有相同的名称时，本地对象优先</p>
+<p>公有同义词：DBA建立，所有用户共同拥有。CREATE PUBLIC SYNONYM …</p>
+<p>私有同义词：用户建立，使用与该用户（对象，可被授权）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CREATE OR REPLACE SYNONYM dept  FOR scott.dept;</span><br><span class="line">SELECT * FROM dept;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><p>同义词和视图的区别在于:</p>
+<p>同义词是提供给不同用户间范围的,只提供查询的功能,用户提供给不同用户之间范围;</p>
+<p>视图是提供给同一个用户的范围内,只提供查询的功能,用户隔离操作;</p>
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: 'location.href', // 可选。默认为 location.href
+  owner: 'zhangwenhao2013',
+  repo: 'zhangwenhao2013.github.io',
+  oauth: {
+    client_id: 'ac818ef7cc637fa01a12',
+    client_secret: '046c3ecb4df38f18814f9b2a6fe1efaaada1aada',
+  },
+})
+gitment.render('container')
+</script>
+
+<p>GitHub<a target="_blank" rel="noopener" href="https://gh-oauth.imsun.net/">登录不了</a>?信任该网站之后再登录。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/07/19/BIO/" rel="prev" title="JDK BIO - Socket编程">
+      <i class="fa fa-chevron-left"></i> JDK BIO - Socket编程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/05/%E5%B8%B8%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%88ArrayList%EF%BC%8CLinkedList%EF%BC%8CHashSet%EF%BC%8CTreeSet%EF%BC%8CTreeMap%EF%BC%8CHashMap%EF%BC%89%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" rel="next" title="常用集合（ArrayList，LinkedList，HashSet，TreeSet，TreeMap，HashMap）底层原理">
+      常用集合（ArrayList，LinkedList，HashSet，TreeSet，TreeMap，HashMap）底层原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">数据库基表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">视图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">视图的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E8%A7%86%E5%9B%BE"><span class="nav-number">2.2.</span> <span class="nav-text">创建视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E8%A7%86%E5%9B%BE"><span class="nav-number">2.3.</span> <span class="nav-text">更新视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E8%A7%86%E5%9B%BE"><span class="nav-number">2.4.</span> <span class="nav-text">删除视图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E4%B9%89%E8%AF%8D"><span class="nav-number">3.</span> <span class="nav-text">同义词</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E4%B9%89%E8%AF%8D%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">同义词的作用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">4.</span> <span class="nav-text">区别</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,23 +1,1157 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-{% block title %}{{ config.title }}{% if theme.index_with_subtitle and config.subtitle %} - {{config.subtitle }}{% endif %}{% endblock %}
+<link rel="stylesheet" href="/css/main.css">
 
-{% block page_class %}
-  {% if is_home() %} page-home {% endif %}
-{% endblock %}
 
-{% block content %}
-  <section id="posts" class="posts-expand">
-    {% for post in page.posts %}
-      {{ post_template.render(post, true) }}
-    {% endfor %}
-  </section>
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-  {% include '_partials/pagination.swig' %}
-{% endblock %}
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
 
-{% block sidebar %}
-  {{ sidebar_template.render(false) }}
-{% endblock %}
+  <meta name="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+<meta property="og:type" content="website">
+<meta property="og:title" content="老柯南">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+<meta property="og:locale">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="IT &amp; LIFE">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'default'
+  };
+</script>
+
+  <title>老柯南</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/08/05/%E5%B8%B8%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%88ArrayList%EF%BC%8CLinkedList%EF%BC%8CHashSet%EF%BC%8CTreeSet%EF%BC%8CTreeMap%EF%BC%8CHashMap%EF%BC%89%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/05/%E5%B8%B8%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%88ArrayList%EF%BC%8CLinkedList%EF%BC%8CHashSet%EF%BC%8CTreeSet%EF%BC%8CTreeMap%EF%BC%8CHashMap%EF%BC%89%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">常用集合（ArrayList，LinkedList，HashSet，TreeSet，TreeMap，HashMap）底层原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-08-05 09:53:29 / Modified: 18:01:59" itemprop="dateCreated datePublished" datetime="2020-08-05T09:53:29+08:00">2020-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Description</p>
+<p>Java lang包下提供了很多集合类,标题中列出的就是平时常用的,关于这些集合虽然之前刻意了解过其特性与原理,时间久了自己都开始混乱了,所以记录此篇,以增强理解和记忆.</p>
+<p><img src="/2020/08/05/%E5%B8%B8%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%88ArrayList%EF%BC%8CLinkedList%EF%BC%8CHashSet%EF%BC%8CTreeSet%EF%BC%8CTreeMap%EF%BC%8CHashMap%EF%BC%89%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/%E9%9B%86%E5%90%88.png" alt="集合"></p>
+<p>npm install <a target="_blank" rel="noopener" href="https://github.com/CodeFalling/hexo-asset-image">https://github.com/CodeFalling/hexo-asset-image</a> –save</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/08/05/%E5%B8%B8%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%88ArrayList%EF%BC%8CLinkedList%EF%BC%8CHashSet%EF%BC%8CTreeSet%EF%BC%8CTreeMap%EF%BC%8CHashMap%EF%BC%89%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/" class="post-title-link" itemprop="url">数据库表/视图/同义词的区别</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-11-11 14:07:23" itemprop="dateCreated datePublished" datetime="2019-11-11T14:07:23+08:00">2019-11-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-11-14 09:36:37" itemprop="dateModified" datetime="2019-11-14T09:36:37+08:00">2019-11-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在做需求的时候发现,正常来讲的话查询的是数据库的表,但是有时查询的可能又是视图,还有可能查询的是一个表的同义词;表/视图/同义词 他们有什么关联,为什么会有这么三种定义呢?</p>
+<p><img src="/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/timg.jpeg" alt="网络图片"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/11/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E5%92%8C%E8%A7%86%E5%9B%BE%E7%9A%84%E5%8C%BA%E5%88%AB-1/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/19/BIO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/19/BIO/" class="post-title-link" itemprop="url">JDK BIO - Socket编程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2019-07-19 16:31:30 / Modified: 18:00:31" itemprop="dateCreated datePublished" datetime="2019-07-19T16:31:30+08:00">2019-07-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/IO/" itemprop="url" rel="index"><span itemprop="name">IO</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>记得之前我去培训Android时，有一个Socket编程面试题目是：</p>
+<p>使用Socket编程实现文件传输</p>
+<p>当时的自己很单纯，想着什么都是自己做，不去查怎么做。记得文件内容传输的实现很简单，但是文件名称该怎么传却难到了我，在难也要自己做，后面多建立了一条Socket专门用来传输文件名。</p>
+<p>Socket编程好久没用到过了，了解NIO的时候，看到了Socket,所以特地回忆下：</p>
+<p><img src="/2019/07/19/BIO/timg.jpeg" alt="网络图片"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/19/BIO/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/18/Netty%E5%89%8D%E7%AF%87IO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/18/Netty%E5%89%8D%E7%AF%87IO/" class="post-title-link" itemprop="url">JDK NIO</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-07-18 10:13:04" itemprop="dateCreated datePublished" datetime="2019-07-18T10:13:04+08:00">2019-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-19 17:52:43" itemprop="dateModified" datetime="2019-07-19T17:52:43+08:00">2019-07-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/NETTY/" itemprop="url" rel="index"><span itemprop="name">NETTY</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Netty作为RPC框架的通信框架，比如阿里的Dubbo服务，为了能了解其底层原理，所以有必要了解下Apache的Netty框架，Netty又是基于JDK的NIO进行封装的，所以JDK NIO 了解一下。</p>
+<p>JDK I/O 又可以区分为 普通的IO,伪异步IO,NIO,AIO;</p>
+<p><img src="/2019/07/18/Netty%E5%89%8D%E7%AF%87IO/timg.jpeg" alt="themeimage"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/18/Netty%E5%89%8D%E7%AF%87IO/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/09/%E8%B5%B0%E8%BF%9BJAVA-Web/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/09/%E8%B5%B0%E8%BF%9BJAVA-Web/" class="post-title-link" itemprop="url">走进JAVA-Web</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2019-07-09 14:48:29 / Modified: 18:00:59" itemprop="dateCreated datePublished" datetime="2019-07-09T14:48:29+08:00">2019-07-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>企业级的Java开发目前都趋于成熟，如果一开始就着手基于框架的Java web开发，虽然开发日常需求CURD没有什么困难，但是在研究项目搭建时就会相对迷茫，为什么这样配置就可以达到效果呢？</p>
+<p>框架帮我们做了很多时间，让我们只需要关注业务开发，而不需要了解具体项目搭建过程；</p>
+<p>为了能让自己具备从项目创建到稳定业务需求开发的能力，就有必要了解下最原始的Java web 项目是怎么运作的；</p>
+<p><img src="/2019/07/09/%E8%B5%B0%E8%BF%9BJAVA-Web/java-web3.png" alt="工程结构"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/09/%E8%B5%B0%E8%BF%9BJAVA-Web/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/04/JDBC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/04/JDBC/" class="post-title-link" itemprop="url">JDBC--基于MySQL</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-07-04 09:48:20" itemprop="dateCreated datePublished" datetime="2019-07-04T09:48:20+08:00">2019-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-08 13:46:16" itemprop="dateModified" datetime="2019-07-08T13:46:16+08:00">2019-07-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JDBC/" itemprop="url" rel="index"><span itemprop="name">JDBC</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JDBC/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>JDBC ,Java DataBase Connectivity ,是一种用于执行SQL语句的Java API;</p>
+<p>所有数据库都支持的一套链接方式；</p>
+<p>高级的持久化框架也是基于JDBC来实现的，比如Mybatis;</p>
+<p><img src="/2019/07/04/JDBC/jdbc.jpeg" alt="网络图片"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/04/JDBC/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/03/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/03/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" class="post-title-link" itemprop="url">代理模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2019-07-03 14:05:38 / Modified: 16:27:38" itemprop="dateCreated datePublished" datetime="2019-07-03T14:05:38+08:00">2019-07-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在研究Spring以及Mybatis源码时，看到很多地方用到了设计模式；</p>
+<p>代理模式有静态代理，动态代理之分，动态代理里面又有JDK动态代理，Cglib动态代理两种；</p>
+<p>代理模式在源码中经常看到，特地总结写，强化自己的理解，希望23种设计模式陆陆续续都总结一下； </p>
+<p>柯南是不是也有点新一的代理的意思呢？</p>
+<p><img src="/2019/07/03/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/conan.jpeg" alt="网络图片"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/03/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" class="post-title-link" itemprop="url">注解Transactional注意事项</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-07-01 09:46:43" itemprop="dateCreated datePublished" datetime="2019-07-01T09:46:43+08:00">2019-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-03 16:35:36" itemprop="dateModified" datetime="2019-07-03T16:35:36+08:00">2019-07-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/SPRING/" itemprop="url" rel="index"><span itemprop="name">SPRING</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/SPRING/JDBC/" itemprop="url" rel="index"><span itemprop="name">JDBC</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>事务管理可以分为编程式事务管理，声明式事务管理两类；</p>
+<p>声明式事务管理中有一只简便的事务管理方式：基于Transactional注解的事务管理方式。</p>
+<p>但是使用@Transactional时有些必须注意的细节，总结如下：</p>
+<p><img src="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/transationnal.png" alt="网络图片"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/" class="post-title-link" itemprop="url">Spring_基础装配</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-20 09:52:39" itemprop="dateCreated datePublished" datetime="2019-06-20T09:52:39+08:00">2019-06-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-03 16:35:20" itemprop="dateModified" datetime="2019-07-03T16:35:20+08:00">2019-07-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/SPRING/" itemprop="url" rel="index"><span itemprop="name">SPRING</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Spring框架最基础的技术就是：依赖注入（DI） ， AOP技术;</p>
+<p>Spring的很多功能和特性都是基于这两个技术实现的；</p>
+<p>下面我将总结下Spring依赖注入（DI）方面的知识，增加自己的理解和记忆。</p>
+<p><img src="/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/timg2.jpg" alt="依赖注入"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">事务管理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-18 15:19:01" itemprop="dateCreated datePublished" datetime="2019-06-18T15:19:01+08:00">2019-06-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-08 15:19:21" itemprop="dateModified" datetime="2019-07-08T15:19:21+08:00">2019-07-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/%E6%95%B0%E6%8D%AE%E5%BA%93/SPRING/" itemprop="url" rel="index"><span itemprop="name">SPRING</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>事务管理可以分为编程式事务管理和声明式事务管理。<br>编程式事务管理:类似命令式的事务管理，只是把涉及到事务操作的逻辑抽取成目标类，使用者只需要关注数据库操作；</p>
+<p>声明式事务管理:声明式编程的事务管理方式，通过响应的配置，告诉让框架来我们需要达到什么样的效果，让框架来管理事务，而不需要使用者手动管理；</p>
+<p><img src="/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/transaction.jpg" alt="网络图片"></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

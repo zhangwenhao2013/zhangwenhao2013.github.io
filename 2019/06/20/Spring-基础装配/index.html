@@ -1,38 +1,507 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-{% block page_class %}page-post-detail{% endblock %}
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Spring框架最基础的技术就是：依赖注入（DI） ， AOP技术; Spring的很多功能和特性都是基于这两个技术实现的； 下面我将总结下Spring依赖注入（DI）方面的知识，增加自己的理解和记忆。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring_基础装配">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="Spring框架最基础的技术就是：依赖注入（DI） ， AOP技术; Spring的很多功能和特性都是基于这两个技术实现的； 下面我将总结下Spring依赖注入（DI）方面的知识，增加自己的理解和记忆。">
+<meta property="og:locale">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/timg2.jpg">
+<meta property="article:published_time" content="2019-06-20T01:52:39.000Z">
+<meta property="article:modified_time" content="2019-07-03T08:35:20.870Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="JAVA">
+<meta property="article:tag" content="SPRING">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhangwenhao2013.github.io/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/timg2.jpg">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/">
 
 
-{% block content %}
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+  <title>Spring_基础装配 | 老柯南</title>
+  
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring_基础装配
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-20 09:52:39" itemprop="dateCreated datePublished" datetime="2019-06-20T09:52:39+08:00">2019-06-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-07-03 16:35:20" itemprop="dateModified" datetime="2019-07-03T16:35:20+08:00">2019-07-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/SPRING/" itemprop="url" rel="index"><span itemprop="name">SPRING</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Spring框架最基础的技术就是：依赖注入（DI） ， AOP技术;</p>
+<p>Spring的很多功能和特性都是基于这两个技术实现的；</p>
+<p>下面我将总结下Spring依赖注入（DI）方面的知识，增加自己的理解和记忆。</p>
+<p><img src="/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/timg2.jpg" alt="依赖注入"></p>
+<a id="more"></a>
+
+<h2 id="Spring配置Bean的几种方式"><a href="#Spring配置Bean的几种方式" class="headerlink" title="Spring配置Bean的几种方式"></a>Spring配置Bean的几种方式</h2><p>1：隐式的Bean发现机制和自动装配；</p>
+<p>2：在Java 中显示配置；</p>
+<p>3：XML 中显示配置；</p>
+<p>4：混合配置；</p>
+<p>前3种配置方式，尽可能的使用自动配置（1），当自动配置不能满足的时候才用Java config（2）显示配置；</p>
+<p>粗略的优先级 </p>
+<p> 自动装配 &gt; 显示配置 &gt; Xml配置</p>
+<p>通常的JAVA依赖注入，构造注入，接口注入，setter方法注入，都是将对象的源 ，通过一定的方式注入到目的类中。Spring中的依赖注入，开发者只需要关注源和目的类，然后声明式的设置源和目的类，Spring 框架提供了强大的声明式配置达到开发者想要的依赖注入效果；</p>
+<h2 id="自动装配"><a href="#自动装配" class="headerlink" title="自动装配"></a>自动装配</h2><p>Spring 从两个角度来实现自动化装配：</p>
+<p>组件扫描（ComponentScaning）:Spring 会自动发现应用上下文中所创建的bean；<br>自动装配（Autowiring）：Spring 自动满足bean 之间的依赖，Spring 会自动将唯一关系匹配的bean关联上；</p>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Scope(scopeName &#x3D; ConfigurableBeanFactory.SCOPE_PROTOTYPE)</span><br><span class="line">@Component(value &#x3D; &quot;anb&quot;)</span><br><span class="line">public class AnnotationBean &#123;</span><br><span class="line">    public void print(String str) &#123;</span><br><span class="line">        System.out.println(&quot;AnnotationBeans  &quot; + str);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>设置依赖注入的源：</p>
+<p> 使用@Component注解 标注类，这样Spring 就知道该类是组件类，会自动创建；<br>Spring 针对不同用途也提供了几个特定用途的注解；</p>
+<p>分别是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Configuration 如果通过Java Config 的装配方式的话，会有一个Config类，这个类也需要被Spring扫描到；</span><br><span class="line">@Repository  用于标注 DAO层链接数据库的类；</span><br><span class="line">@Service     用于标注 Service层的类</span><br><span class="line">@Controller  用于标注 Controller层的类</span><br></pre></td></tr></table></figure>
+
+<p>解释：</p>
+<p>@Scope ： 作用域  默认Spring自动创建的组件类是单例模式的； ConfigurableBeanFactory.SCOPE_PROTOTYPE 是每次使用都创建不同新的实例；可以修改Scope的属性进行相应的设置；</p>
+<p>@Component 组件注解 ，这里的value是给组件设置名字，如果不设置，Spring 会将第一个字母小写的类名当做组件的名字；</p>
+<p>如果用在Config类上@Component标注只是将这些类标记为组件类，还需要使用 @ComponentScan 告诉Spring启用组件扫描；</p>
+<p>这里需要注意下扫描的路径，默认是扫描Java config类的那个目录，如果需要跨目录，一定需要配置。@ComponentScan也有很多属性可以配置。</p>
+<p>到这里，@Component标注的组件类有了，@ComponentScan也启用了，Spring 容器（上下文）就会自动创建这些类的实例；</p>
+<p>但这些实例只有容器持有，没被任何地方使用；</p>
+<p>@Autowiried自动装配就是将这些组件类实例 注入到需要的地方；</p>
+<p>下面是完整的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class L2Bean &#123;</span><br><span class="line">    public void print() &#123;</span><br><span class="line">        System.out.println(&quot;autowired 成功&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Configuration</span><br><span class="line">@ComponentScan(basePackages &#x3D; &#123;&quot;com.conan.beans&quot;&#125;)  &#x2F;&#x2F; 我这里存在跨目录</span><br><span class="line">public class L2Config &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@RunWith(value &#x3D; SpringJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(classes &#x3D; L2Config.class)</span><br><span class="line">public class TestConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private L2Bean l2Bean; &#x2F;&#x2F;这里是父类型，接口类型都能接受</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testAutowired()&#123;</span><br><span class="line">        l2Bean.print();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="ComponentScan"><a href="#ComponentScan" class="headerlink" title="@ComponentScan"></a>@ComponentScan</h3><p>@ComponentScan 默认是扫描类当前所在的包下的所有内容</p>
+<p>扫描的形式：扫描basePackages ， 扫描basePackageClasses等</p>
+<p>其中basePackageClasses的扫描形式，可以给所有要扫描的类添加一个空接口，专门用来做扫描标记；</p>
+<h3 id="Autowiried"><a href="#Autowiried" class="headerlink" title="@Autowiried"></a>@Autowiried</h3><p>Spring 的@Autowiried ，能把容器中唯一能匹配的实例匹配上，即使目标处用的是接口类型的实例，如果有多个可以匹配就会出错，这个就要用到后面更高级的声明了；<br>@Autowiried 可以作用在成员变量，构造方法，setter方法上（setter方法不用是严格意义上的setter方法，只要是赋值的方法上）；</p>
+<p>作用在成员变量和setter方法上，是直接提供成员变量； 作用在构造上是提供构造需要的参数；</p>
+<p>如果@Autowiried 所注解的成员变量不是必要的， 可以使用 required 属性设置为false；值得注意的是，此时，这个成员变量使用时要记得做判null;</p>
+<p>还有另外一种 注解方式：@Name 类似@Component ， @Inject 类似@Autowiried；</p>
+<h3 id="Spring-自动装配额外特性"><a href="#Spring-自动装配额外特性" class="headerlink" title="Spring 自动装配额外特性"></a>Spring 自动装配额外特性</h3><p>如果Spring 容器中同类型的Bean 有多个，如果定义一个该类型的集合，并使用@Autowired 标注，Spring 会把容器中所有和该Bean同类型的bean装配到对应类型的集合中！！！！！</p>
+<p>这个特性在Spring 的功能的源码中可以看到，比如Spring MVC的 ViewResolver；  </p>
+<h2 id="Java-中显示配置"><a href="#Java-中显示配置" class="headerlink" title="Java 中显示配置"></a>Java 中显示配置</h2><p> 虽然推荐使用 Spring的自动装配，但是如果我们用到了第三方的类的时候，就没法在人家的类上使用@Component了。此时我们就要使用在Java Config中显示配置；</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"> &#x2F;&#x2F; 源</span><br><span class="line"> @Configuration()</span><br><span class="line">public class L3Config &#123;</span><br><span class="line">    @Bean</span><br><span class="line">    public L2Bean creatL2Bean()&#123;</span><br><span class="line">        return new L2Bean();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 使用</span><br><span class="line">@RunWith(SpringJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(classes &#x3D; L3Config.class)</span><br><span class="line">public class TestConfig2 &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    L2Bean l2Bean;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testL2JavaConfig()&#123;</span><br><span class="line">        l2Bean.print();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<h3 id="Bean"><a href="#Bean" class="headerlink" title="@Bean"></a>@Bean</h3><p> 在Java Config中显示配置，需要使用 @Bean 注解；@Bean注解通常配合@Configuration使用(如果不需要扫描其他的组件类，那就不用使用@ComponentScan了)；</p>
+<p> @Bean作用在方法上，可以通过 name / value 属性给实例命名（类似ID的意思），默认是使用方法名作为名称；</p>
+<p> @Bean 还有 initMethod ，destroyMethod 属性，initMethod可以对象实例化只会调用该对象的方法，方法不需要”（）“ 如这里的 @Bean(initMethod = “print”)；destroyMethod同理；</p>
+<p> 前面讲 自动匹配的时候，有说的@Scope； 当使用 Java Config方式配置的时候， @Bean 是没有配置作用域的属性的，如果需要配置作用域，也是需要借助@Scope 注解；</p>
+<h2 id="XML-装配"><a href="#XML-装配" class="headerlink" title="XML 装配"></a>XML 装配</h2><p> 前面两种装配方式，创建了一个使用@Configuration标注的类，在XML配置中，需要创建一个XML文件，并且要以<beans>元素为根；</beans></p>
+<p> 如果换一种理解方式；可以把@Configuration标注的类理解为就是一个XML配置；</p>
+<p> 下面是最简单的使用方式，XML配置中负责Spring 容器中的配置，@Autowired负责装配；</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> &lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans&quot;</span><br><span class="line">       xmlns:xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">       xmlns:context&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;context&quot;</span><br><span class="line">       xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans&#x2F;spring-beans.xsd</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;context</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;context&#x2F;spring-context.xsd&quot;&gt;</span><br><span class="line">       </span><br><span class="line">       &lt;bean class&#x3D;&quot;com.conan.beans.L2Bean&quot;&#x2F;&gt;</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;beans&gt;</span><br><span class="line"></span><br><span class="line">@RunWith(BlockJUnit4ClassRunner.class)</span><br><span class="line">@ContextConfiguration(locations &#x3D; &#123;&quot;classpath:spring-xml-config.xml&quot;&#125;)</span><br><span class="line">public class TestXMlConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    L2Bean l2Bean;</span><br><span class="line"></span><br><span class="line">    @Test</span><br><span class="line">    public void testXmlConfig() &#123;</span><br><span class="line">        l2Bean.print();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p> 其实在<bean class="com.conan.beans.L2Bean"> 是可以配置id 属性的，如果没有配置的话，Spring 会根据全限定类名来进行命名；</bean></p>
+<p> 这里L2Bean 实例的全限定名称：”com.conan.beans.L2Bean#0“ ，其中”#0“ 是一个计数的形式，如果有声明了另外一个L2Bean,就会是”#1“的形式；</p>
+<p> 可以通过如下代码测试出来： </p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@RunWith(BlockJUnit4ClassRunner.class)</span><br><span class="line">public class TestXMlConfig &#123;</span><br><span class="line">      L2Bean l2Bean;</span><br><span class="line">    private ClassPathXmlApplicationContext context;</span><br><span class="line"></span><br><span class="line">    @Before</span><br><span class="line">    public void before() &#123;</span><br><span class="line">        context &#x3D; new ClassPathXmlApplicationContext(&quot;classpath:spring-xml-config.xml&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"> &#x2F;&#x2F; @Autowired</span><br><span class="line"> &#x2F;&#x2F; private ApplicationContext context; 也可以通过自动装配方式获取 上下文（容器）</span><br><span class="line">    </span><br><span class="line">    @Test</span><br><span class="line">    public void testXmlConfig() &#123;</span><br><span class="line">        l2Bean &#x3D; (L2Bean) context.getBean(&quot;com.conan.beans.L2Bean#0&quot;);</span><br><span class="line">        l2Bean.print();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> xml方式的装配，只能是通过构造方法的方式来实现，对象的创建；</p>
+<p> 如果需要配置属性，可以通过构造穿入，或者setter方法（非严格意义上的）传入；</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> &lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans&quot;</span><br><span class="line">       xmlns:xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">       xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans&#x2F;spring-beans.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean class&#x3D;&quot;com.conan.beans.L3Bean&quot;&gt;</span><br><span class="line">        &lt;constructor-arg name&#x3D;&quot;name&quot; value&#x3D;&quot;Conan&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean class&#x3D;&quot;com.conan.beans.L2Bean&quot;&gt;</span><br><span class="line">        &lt;property name&#x3D;&quot;name&quot; value&#x3D;&quot;Conan2&quot;&#x2F;&gt;</span><br><span class="line">    &lt;&#x2F;bean&gt;</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;beans&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="混合装配"><a href="#混合装配" class="headerlink" title="混合装配"></a>混合装配</h2><h3 id="以JavaConfig-为主的-混合装配"><a href="#以JavaConfig-为主的-混合装配" class="headerlink" title="以JavaConfig 为主的 混合装配"></a>以JavaConfig 为主的 混合装配</h3> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> @Configuration</span><br><span class="line">@Import(CDPlayerConfig.class)  &#x2F;&#x2F; 引入别的Java config</span><br><span class="line">@ImportResource(&quot;classpath:cd-config.xml&quot;) &#x2F;&#x2F; 引入别的XMl config</span><br><span class="line">public class JavaConfigMixConfig &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="以XML-为主的-混合装配"><a href="#以XML-为主的-混合装配" class="headerlink" title="以XML 为主的 混合装配"></a>以XML 为主的 混合装配</h3> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> &lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans&quot;</span><br><span class="line">       xmlns:xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;</span><br><span class="line">       xmlns:context&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;context&quot;</span><br><span class="line">       xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;beans&#x2F;spring-beans.xsd</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;context</span><br><span class="line">       http:&#x2F;&#x2F;www.springframework.org&#x2F;schema&#x2F;context&#x2F;spring-context.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;context:annotation-config&gt;com.conan.aopbaseconfig.L2Config&lt;&#x2F;context:annotation-config&gt; &#x2F;&#x2F; 引入别的Java config 方式1</span><br><span class="line">    &lt;!--&lt;bean class&#x3D;&quot;com.conan.aopbaseconfig.L3Config&quot;&#x2F;&gt;--&gt; &#x2F;&#x2F; 引入别的Java config 方式2</span><br><span class="line">     &lt;!--&lt;import resource&#x3D;&quot;spring-xml-mix.xml&quot;&#x2F;&gt;--&gt;  &#x2F;&#x2F; 引入别的XMl config</span><br><span class="line"></span><br><span class="line">&lt;&#x2F;beans&gt;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<h2 id="C-标签-和-P-标签"><a href="#C-标签-和-P-标签" class="headerlink" title="C 标签 和 P 标签"></a>C 标签 和 P 标签</h2><p> Spring 3.0 之后引入了C标签 和 <constructor-arg> 来精简XML 配置</constructor-arg></p>
+<p> C 标签命名空间属性的组成方式：</p>
+<p> c:cd-ref=”xxxId“<br> c:name=”attr“ </p>
+<p> c : 命名空间前缀；<br> cd : constructor 构造器参数名；<br> —ref : 注入bean的引用；  如果不是引用 ：  c:name=”attr“  直接属性名字，和对应的参数值<br> xxxId : 要注入bean的id;</p>
+<p> <constructor-arg> ：可以专票集合 list set<br> <list> <value>xxxxx<value> … </value></value></list><br> <list> <ref bean="”xxx“/"> … </ref></list></constructor-arg></p>
+<p> Spring 提供了 P 标签</p>
+<p> P 标签命名空间属性的组成方式：</p>
+<p> p:attr-ref=”xxx”<br> p:attr=”attrValue”</p>
+<p> p：命名空间前缀；<br> attr :属性名；<br> -ref : 注入bean的引用；如果不是注入引用，和C标签一样；<br> xxx : 要注入bean的id;</p>
+<p> XML 方式不推荐使用，所以这里粗略总结下而已；</p>
+<div id="container"></div>
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: 'location.href', // 可选。默认为 location.href
+  owner: 'zhangwenhao2013',
+  repo: 'zhangwenhao2013.github.io',
+  oauth: {
+    client_id: 'ac818ef7cc637fa01a12',
+    client_secret: '046c3ecb4df38f18814f9b2a6fe1efaaada1aada',
+  },
+})
+gitment.render('container')
+</script>
+
+<p>GitHub<a target="_blank" rel="noopener" href="https://gh-oauth.imsun.net/">登录不了</a>?信任该网站之后再登录。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JAVA/" rel="tag"># JAVA</a>
+              <a href="/tags/SPRING/" rel="tag"># SPRING</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/18/%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/" rel="prev" title="事务管理">
+      <i class="fa fa-chevron-left"></i> 事务管理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" rel="next" title="注解Transactional注意事项">
+      注解Transactional注意事项 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring%E9%85%8D%E7%BD%AEBean%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Spring配置Bean的几种方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D"><span class="nav-number">2.</span> <span class="nav-text">自动装配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ComponentScan"><span class="nav-number">2.1.</span> <span class="nav-text">@ComponentScan</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Autowiried"><span class="nav-number">2.2.</span> <span class="nav-text">@Autowiried</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D%E9%A2%9D%E5%A4%96%E7%89%B9%E6%80%A7"><span class="nav-number">2.3.</span> <span class="nav-text">Spring 自动装配额外特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E4%B8%AD%E6%98%BE%E7%A4%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">Java 中显示配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bean"><span class="nav-number">3.1.</span> <span class="nav-text">@Bean</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XML-%E8%A3%85%E9%85%8D"><span class="nav-number">4.</span> <span class="nav-text">XML 装配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%B7%E5%90%88%E8%A3%85%E9%85%8D"><span class="nav-number">5.</span> <span class="nav-text">混合装配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A5JavaConfig-%E4%B8%BA%E4%B8%BB%E7%9A%84-%E6%B7%B7%E5%90%88%E8%A3%85%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">以JavaConfig 为主的 混合装配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A5XML-%E4%B8%BA%E4%B8%BB%E7%9A%84-%E6%B7%B7%E5%90%88%E8%A3%85%E9%85%8D"><span class="nav-number">5.2.</span> <span class="nav-text">以XML 为主的 混合装配</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-%E6%A0%87%E7%AD%BE-%E5%92%8C-P-%E6%A0%87%E7%AD%BE"><span class="nav-number">6.</span> <span class="nav-text">C 标签 和 P 标签</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
