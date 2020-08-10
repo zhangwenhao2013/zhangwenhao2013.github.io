@@ -23,7 +23,7 @@
   <meta name="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
 <meta property="og:type" content="website">
 <meta property="og:title" content="老柯南">
-<meta property="og:url" content="https://zhangwenhao2013.github.io/categories/JAVA/index.html">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/categories/Java/index.html">
 <meta property="og:site_name" content="老柯南">
 <meta property="og:description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
 <meta property="og:locale">
@@ -31,7 +31,7 @@
 <meta property="article:tag" content="IT &amp; LIFE">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://zhangwenhao2013.github.io/categories/JAVA/">
+<link rel="canonical" href="https://zhangwenhao2013.github.io/categories/Java/">
 
 
 <script id="page-configurations">
@@ -44,7 +44,7 @@
   };
 </script>
 
-  <title>Category: JAVA | 老柯南</title>
+  <title>Category: Java | 老柯南</title>
   
 
 
@@ -152,7 +152,7 @@
   <div class="post-block">
     <div class="posts-collapse">
       <div class="collection-title">
-        <h2 class="collection-header">JAVA
+        <h2 class="collection-header">Java
           <small>Category</small>
         </h2>
       </div>
@@ -167,118 +167,191 @@
 
       <div class="post-meta">
         <time itemprop="dateCreated"
-              datetime="2020-08-05T09:53:29+08:00"
-              content="2020-08-05">
-          08-05
+              datetime="2020-08-09T09:20:47+08:00"
+              content="2020-08-09">
+          08-09
         </time>
       </div>
 
       <div class="post-title">
-          <a class="post-title-link" href="/2020/08/05/%E5%B8%B8%E7%94%A8%E9%9B%86%E5%90%88%EF%BC%88ArrayList%EF%BC%8CLinkedList%EF%BC%8CHashSet%EF%BC%8CTreeSet%EF%BC%8CTreeMap%EF%BC%8CHashMap%EF%BC%89%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/" itemprop="url">
-            <span itemprop="name">常用集合（ArrayList，LinkedList，HashSet，TreeSet，TreeMap，HashMap）底层原理</span>
+          <a class="post-title-link" href="/2020/08/09/ArrayList-LinkedList-%E6%BA%90%E7%A0%81/" itemprop="url">
+            <span itemprop="name">ArrayList & LinkedList 源码</span>
           </a>
       </div>
 
     </header>
   </article>
-    <div class="collection-year">
-      <span class="collection-header">2019</span>
+
     </div>
+  </div>
+  
+  
+  
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-07-19T16:31:30+08:00"
-              content="2019-07-19">
-          07-19
-        </time>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
       </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/07/19/BIO/" itemprop="url">
-            <span itemprop="name">JDK BIO - Socket编程</span>
-          </a>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
       </div>
+    </main>
 
-    </header>
-  </article>
+    <footer class="footer">
+      <div class="footer-inner">
+        
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+        
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-07-18T10:13:04+08:00"
-              content="2019-07-18">
-          07-18
-        </time>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
       </div>
+    </footer>
+  </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/07/18/Netty%E5%89%8D%E7%AF%87IO/" itemprop="url">
-            <span itemprop="name">JDK NIO</span>
-          </a>
-      </div>
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
 
-    </header>
-  </article>
+<script src="/js/utils.js"></script>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<script src="/js/motion.js"></script>
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-07-09T14:48:29+08:00"
-              content="2019-07-09">
-          07-09
-        </time>
-      </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/07/09/%E8%B5%B0%E8%BF%9BJAVA-Web/" itemprop="url">
-            <span itemprop="name">走进JAVA-Web</span>
-          </a>
-      </div>
+<script src="/js/schemes/muse.js"></script>
 
-    </header>
-  </article>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<script src="/js/next-boot.js"></script>
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-07-01T09:46:43+08:00"
-              content="2019-07-01">
-          07-01
-        </time>
-      </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" itemprop="url">
-            <span itemprop="name">注解Transactional注意事项</span>
-          </a>
-      </div>
 
-    </header>
-  </article>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-06-20T09:52:39+08:00"
-              content="2019-06-20">
-          06-20
-        </time>
-      </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/06/20/Spring-%E5%9F%BA%E7%A1%80%E8%A3%85%E9%85%8D/" itemprop="url">
-            <span itemprop="name">Spring_基础装配</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
+ itemprop="name">Spring_基础装配</span>
           </a>
       </div>
 
@@ -376,16 +449,16 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
