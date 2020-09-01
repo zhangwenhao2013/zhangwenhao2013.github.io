@@ -149,6 +149,90 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/09/01/%E8%AF%BBBlockingQueue%E6%BA%90%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/01/%E8%AF%BBBlockingQueue%E6%BA%90%E7%A0%81/" class="post-title-link" itemprop="url">读BlockingQueue源码--ArrayBlockingQueue</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-09-01 14:42:38 / Modified: 15:32:46" itemprop="dateCreated datePublished" datetime="2020-09-01T14:42:38+08:00">2020-09-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>BlockingQueue 是JUC包中的一个接口, 从名字可以看出是一个支持阻塞的队列.  在刚学<code>Thread</code>的时候, 是否有被生产者-消费者问题难倒过? 在学Thread的时候主要学习解决<code> 生产者-消费者问题</code>的思路, 如果现在在来解决这个问题, 我们就不用再手撸<code>wait - notify</code>的代码了, BlockingQueue 就可以很轻松的解决这个问题, 下面我们就学习下 并发大神Doug Lea 是怎么解决这个问题的.</p>
+<p><img src="https://some.png/" alt="网络图片"></p>
+<h2 id="BlockingQueue"><a href="#BlockingQueue" class="headerlink" title="BlockingQueue"></a>BlockingQueue</h2><p>BlockingQueue 是一个接口, 首先我看看 <code>BlockingQueue</code> 定义了那些接口方法.</p>
+<p><img src="/2020/09/01/%E8%AF%BBBlockingQueue%E6%BA%90%E7%A0%81/1.png" alt="1"></p>
+<p>其中<code>add() ,offer()</code> 方法</p>
+<ul>
+<li>add( e ): 底层调用的是 <code>offer( e )</code> 方法, 如果</li>
+<li>offer( e ):</li>
+</ul>
+<h3 id="BlockingQueue-1"><a href="#BlockingQueue-1" class="headerlink" title="BlockingQueue"></a>BlockingQueue</h3><h2 id="BlockingQueue-2"><a href="#BlockingQueue-2" class="headerlink" title="BlockingQueue"></a>BlockingQueue</h2>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/09/01/%E8%AF%BBBlockingQueue%E6%BA%90%E7%A0%81/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
     <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/08/18/ReentrantLock%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -889,98 +973,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="zhangwenhao">
-      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="老柯南">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" class="post-title-link" itemprop="url">注解Transactional注意事项</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2019-07-01 09:46:43" itemprop="dateCreated datePublished" datetime="2019-07-01T09:46:43+08:00">2019-07-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-07-03 16:35:36" itemprop="dateModified" datetime="2019-07-03T16:35:36+08:00">2019-07-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JAVA/SPRING/" itemprop="url" rel="index"><span itemprop="name">SPRING</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JAVA/SPRING/JDBC/" itemprop="url" rel="index"><span itemprop="name">JDBC</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>事务管理可以分为编程式事务管理，声明式事务管理两类；</p>
-<p>声明式事务管理中有一只简便的事务管理方式：基于Transactional注解的事务管理方式。</p>
-<p>但是使用@Transactional时有些必须注意的细节，总结如下：</p>
-<p><img src="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/transationnal.png" alt="网络图片"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/07/01/%E6%B3%A8%E8%A7%A3Transactional%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1050,7 +1042,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
