@@ -41,7 +41,7 @@
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/01/%E8%AF%BBBlockingQueue%E6%BA%90%E7%A0%81/9.png">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/01/%E8%AF%BBBlockingQueue%E6%BA%90%E7%A0%81/10.png">
 <meta property="article:published_time" content="2020-09-01T06:42:38.000Z">
-<meta property="article:modified_time" content="2020-09-02T11:59:21.886Z">
+<meta property="article:modified_time" content="2020-09-03T10:29:26.096Z">
 <meta property="article:author" content="zhangwenhao">
 <meta property="article:tag" content="JUC">
 <meta name="twitter:card" content="summary">
@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-02 19:59:21" itemprop="dateModified" datetime="2020-09-02T19:59:21+08:00">2020-09-02</time>
+                <time title="Modified: 2020-09-03 18:29:26" itemprop="dateModified" datetime="2020-09-03T18:29:26+08:00">2020-09-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -330,8 +330,8 @@
 <p>如果<code>notFull</code>的条件队列中有在等待的线程,通过<code>do ... while ...</code> 循环可以看出, 其依次通知在<code>notFull</code>的条件队列中有在等待的线程.</p>
 <ul>
 <li>1.修改waitStatus状态,从  Node.CONDITION 改为0. (默认添加到ReentrantLock中的Node waitStatus 为0)</li>
-<li>2.如果线程取消 ws &gt; 0 , 唤醒该线程, 交给后面ReentrantLock 去处理过滤.</li>
-<li>3.compareAndSetWaitStatus(p, ws, Node.SIGNAL) 失败 ,唤醒该线程, 交给后面ReentrantLock 去处理过滤.</li>
+<li>2.如果线程取消 ws &gt; 0 , 唤醒该线程,被唤醒的线程 将从<code>condition.await()里面LockSupport.park(this)</code>位置重新开始执行,后续<code>acquireQueued(node, savedState)</code> <strong>补充获取锁权限,如果获取不到锁权限,将阻塞在    <code>acquireQueued内</code></strong>,如果获取锁成功,则直接入队元素,最终完成任务,释放锁.</li>
+<li>3.compareAndSetWaitStatus(p, ws, Node.SIGNAL) 失败 ,唤醒该线程,被唤醒的线程 将从<code>condition.await()里面LockSupport.park(this)</code>位置重新开始执行,后续<code>acquireQueued(node, savedState)</code> <strong>补充获取锁权限,如果获取不到锁权限,将阻塞在<code>acquireQueued内</code></strong> ,如果获取锁成功,则直接入队元素,最终完成任务,释放锁.</li>
 <li>4.陆续将条件队列中的每个节点的前一个节点的ws 设置为 Node.SIGNAL, 通过调用<code>compareAndSetWaitStatus(p, ws, Node.SIGNAL)</code>. 最终的结果是全部迁移的节点前一个元素的waitStatus 都是<code>-1</code>, 只有最后一个节点 依旧是 <code>0</code>.</li>
 </ul>
 <p><strong>注意</strong>: 阻塞在条件队列中的位置!!!!!!!! 阻塞在 <code>condition.await() </code> 方法中.</p>
@@ -444,16 +444,16 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
