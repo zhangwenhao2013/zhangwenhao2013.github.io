@@ -180,7 +180,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-05 17:45:41" itemprop="dateModified" datetime="2020-09-05T17:45:41+08:00">2020-09-05</time>
+                <time title="Modified: 2020-09-07 13:52:19" itemprop="dateModified" datetime="2020-09-07T13:52:19+08:00">2020-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -204,6 +204,11 @@
 
       
           <p>Java线程的创建非常昂贵, 为了在有限资源的情况下, 又有线程需求的时候,我们希望线程能复用,这样就可以尽可能的减少创建,消耗线程的开销.因此就有了线程池 –ThreadPoolExecutor.</p>
+<p>这里为什么一反常态,既不是放的类关系, 也不是放的柯南, 而是放的筷子,勺子的照片呢?</p>
+<p>首先是真的想不到,怎么和柯南关联上.其二是类关系好像也没啥好放的.反倒是筷子到时很时候理解ThreadPoolExecutor的.在这里,我们把线程当做是筷子或者勺子, 筷子篓当做线程池.当我们需要筷子的时候, 但是我们又没有筷子,我们需要去买筷子,或者自己弄材料做筷子. 自己弄筷子的这个事情,比较麻烦, 就相当于系统创建线程一样,开销大. </p>
+<p>如果我们用完筷子之后,直接丢弃, 那我们下次再有需要筷子的时候,我们又得麻烦一遍. </p>
+<p>如果我们将筷子洗刷干净,放在筷子篓中,下次有需要我们直接从筷子篓中拿就好了,这样是不是更方便呢.</p>
+<p>线程池也差不多是这个意思,下面我们就来图解ThreadPoolExecutor吧.</p>
 <p><img src="/2020/09/04/%E5%9B%BE%E8%A7%A3ThreadPoolExecutor/1.jpg" alt="筷子"></p>
           <!--noindex-->
             <div class="post-button">
