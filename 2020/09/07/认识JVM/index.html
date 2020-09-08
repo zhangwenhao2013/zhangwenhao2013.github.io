@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="看过周志明的&lt;深入了解Java虚拟机&gt;,网上零零散散看到过相关的帖子,现在再回忆JVM,印象也是很模糊. 根据B站上记忆大师的推荐的方法,如果记住一个东西,首先需要理解它,最好类别,然后图形化它,这样记忆才会深刻.  所以今天又来画图了 —— 其实我是个画家. 这次我们要画的内容是 —– JVM.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="认识JVM">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="看过周志明的&lt;深入了解Java虚拟机&gt;,网上零零散散看到过相关的帖子,现在再回忆JVM,印象也是很模糊. 根据B站上记忆大师的推荐的方法,如果记住一个东西,首先需要理解它,最好类别,然后图形化它,这样记忆才会深刻.  所以今天又来画图了 —— 其实我是个画家. 这次我们要画的内容是 —– JVM.">
+<meta property="og:locale">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/jdk.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/Jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/array.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/stack.png">
+<meta property="article:published_time" content="2020-09-07T11:03:25.000Z">
+<meta property="article:modified_time" content="2020-09-08T02:39:59.826Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="JVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/jdk.png">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>认识JVM | 老柯南</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          认识JVM
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-07 19:03:25" itemprop="dateCreated datePublished" datetime="2020-09-07T19:03:25+08:00">2020-09-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-08 10:39:59" itemprop="dateModified" datetime="2020-09-08T10:39:59+08:00">2020-09-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>看过周志明的&lt;深入了解Java虚拟机&gt;,网上零零散散看到过相关的帖子,现在再回忆JVM,印象也是很模糊. 根据B站上记忆大师的推荐的方法,如果记住一个东西,首先需要理解它,最好类别,然后图形化它,这样记忆才会深刻.  所以今天又来画图了 —— 其实我是个画家.</p>
+<p>这次我们要画的内容是 —– JVM.</p>
+<p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/jdk.png" alt="jdk"></p>
+<a id="more"></a>
+
+<p>前面本想总结下<code>synchronized</code>的,但是呢synchronized涉及到Object 对象头, 对象头又设计到对象的初始化, 涉及到JVM , 涉及到 类加载. 所以准备从头到尾的来总结一遍. 类加载的回头补上,今天先从JVM开始画.</p>
+<p>开头的图摘自 官网<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/">Developer Guides</a></p>
+<h2 id="Java-代码是怎么被JVM虚拟机所执行的"><a href="#Java-代码是怎么被JVM虚拟机所执行的" class="headerlink" title="Java 代码是怎么被JVM虚拟机所执行的."></a>Java 代码是怎么被JVM虚拟机所执行的.</h2><p>我们的<code>Xxx.java</code> 文件,经过<code>javac</code> 编码成 <code>Xxx.class</code></p>
+<p><code>Xxx.class</code>是JVM 所能解析的 二进制文件, JVM将<code>Xxx.class</code> 根据执行机器上的JDK环境将文件内容处理成该运行机器所能处理的汇编指令.</p>
+<p>我们可以通过<code>javap</code> 指令,也将<code>Xxx.class</code> 转成汇编指令.</p>
+<p>JVM 最初就是执行转换后的汇编指令来执行我们所编写的java代码.</p>
+<h2 id="JVM-的结构"><a href="#JVM-的结构" class="headerlink" title="JVM 的结构"></a>JVM 的结构</h2><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5">官方解释</a></p>
+<p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/Jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" alt="Jvm内存模型"></p>
+<h3 id="类加载系统"><a href="#类加载系统" class="headerlink" title="类加载系统"></a>类加载系统</h3><p>负责将类加载到内存区,本着Java中万物皆对象,负责加载类的相关类也是JAVA对象, 比如 <code>ClassLoader</code>,类加载系统不仅仅限于类加载器,底层是基于C去实现加载的.</p>
+<h3 id="堆区"><a href="#堆区" class="headerlink" title="堆区"></a>堆区</h3><p>堆区:用于存放对象实例,我们<code>new</code>出来的对象一般都存储在堆上.(但也有特殊情况,有时候会存在栈上). </p>
+<p>堆区是线程共享的.</p>
+<h3 id="元数据区"><a href="#元数据区" class="headerlink" title="元数据区"></a>元数据区</h3><p>用于存储运行时常量池,类信息,常量静态变量.</p>
+<p>元数据区是线程共享的.</p>
+<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>程序计数器:记录程序在内存中的指针位置</p>
+<h3 id="字节码执行引擎"><a href="#字节码执行引擎" class="headerlink" title="字节码执行引擎"></a>字节码执行引擎</h3><p>字节码执行引擎:负责修改程序计数器</p>
+<h3 id="栈区-栈帧"><a href="#栈区-栈帧" class="headerlink" title="栈区/栈帧"></a>栈区/栈帧</h3><p>栈区/栈帧: 线程运行时开辟出来的一快内存空间,有称栈帧.是线程独享的一块空间. 栈帧内部又可以分为4块: </p>
+<ul>
+<li>局部变量存储空间</li>
+<li>操作数栈</li>
+<li>动态链接</li>
+<li>程序出口</li>
+</ul>
+<p>下面会参考翻译后的<a target="_blank" rel="noopener" href="http://www.360doc.com/content/11/0414/12/2749105_109542386.shtml">JVM指令</a>,<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.11">官网JVM指令</a></p>
+<h4 id="局部变量"><a href="#局部变量" class="headerlink" title="局部变量"></a>局部变量</h4><p>JVM 把方法入栈之后,会将所有的变量,放在一个数组中,执行赋值的时候是先将值压入 操作数栈中,最终出栈赋值给 局部变量,根据其索引值决定赋值给谁.</p>
+<p>在<code>add()</code>方法中,有一个数组存储着3个变量: a, b, c.</p>
+<p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/array.png" alt="array"></p>
+<p>下面我们用代码验证</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> a = add();</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">int</span> c = a + b;</span><br><span class="line">    <span class="keyword">return</span> c;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>执行完 <code>javap -c</code>的结果是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Compiled from &quot;Test.java&quot;</span><br><span class="line">public class com.iz.springstudy.Test &#123;</span><br><span class="line">  public com.iz.springstudy.Test();</span><br><span class="line">    Code:</span><br><span class="line">       0: aload_0</span><br><span class="line">       1: invokespecial #1                  &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="line">       4: return</span><br><span class="line"></span><br><span class="line">  public static void main(java.lang.String[]);</span><br><span class="line">    Code:</span><br><span class="line">       0: invokestatic  #2                  &#x2F;&#x2F; Method add:()I</span><br><span class="line">       3: istore_1</span><br><span class="line">       4: return</span><br><span class="line"></span><br><span class="line">  public static int add();</span><br><span class="line">    Code:</span><br><span class="line">       0: iconst_1</span><br><span class="line">       1: istore_0</span><br><span class="line">       2: iconst_2</span><br><span class="line">       3: istore_1</span><br><span class="line">       4: iload_0</span><br><span class="line">       5: iload_1</span><br><span class="line">       6: iadd</span><br><span class="line">       7: istore_2</span><br><span class="line">       8: iload_2</span><br><span class="line">       9: ireturn</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里我们只看 <code>add()</code>方法,就拿<code>0: iconst_1</code> 来说</p>
+<p><code>0: iconst_1</code> : 前面的0 : 我们就理解其为程序计数器.</p>
+<p><code>0: iconst_1</code> : 后面的iconst_1 : 是将int类型1 压入 操作数栈.</p>
+<p> 下面我们在来看<code>1: istore_0</code></p>
+<p> <code>1: istore_0</code>: 后面的istore_0 : 是将int类型值存入局部变量0 中</p>
+<p> <code>1: istore_0</code>: 后面的<code>_0</code> : 就是数组中的索引值.</p>
+<p>下面我们改下程序</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line">   <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line">   <span class="keyword">int</span> c = a + b;</span><br><span class="line">   <span class="keyword">return</span> c;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行 <code>javap -c </code>之后</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  public static int add();</span><br><span class="line">    Code:</span><br><span class="line">       0: bipush        10</span><br><span class="line">       2: istore_0</span><br><span class="line">       3: bipush        20</span><br><span class="line">       5: istore_1</span><br><span class="line">       6: iload_0</span><br><span class="line">       7: iload_1</span><br><span class="line">       8: iadd</span><br><span class="line">       9: istore_2</span><br><span class="line">      10: iload_2</span><br><span class="line">      11: ireturn</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>0: bipush        10</code>: 像操作数栈中入栈 int类型值  10</p>
+<p><code>2: istore_0</code>        : 将int类型的值出栈,存入局部变量0 中.</p>
+<h4 id="操作数栈"><a href="#操作数栈" class="headerlink" title="操作数栈"></a>操作数栈</h4><p>操作数栈 是一个栈结构.</p>
+<p>这里我们以如下代码为主:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  public static int add();</span><br><span class="line">    Code:</span><br><span class="line">       0: bipush        10</span><br><span class="line">       2: istore_0</span><br><span class="line">       3: bipush        20</span><br><span class="line">       5: istore_1</span><br><span class="line">       6: iload_0</span><br><span class="line">       7: iload_1</span><br><span class="line">       8: iadd</span><br><span class="line">       9: istore_2</span><br><span class="line">      10: iload_2</span><br><span class="line">      11: ireturn</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们来看下 <code>a + b</code> 是什么流程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">6: iload_0  &#x2F;&#x2F; 加载局部变量0 到 操作数栈</span><br><span class="line">7: iload_1  &#x2F;&#x2F; 加载局部变量1 到 操作数栈</span><br><span class="line">8: iadd     &#x2F;&#x2F; 执行add 操作,交给cpu执行</span><br><span class="line">9: istore_2 &#x2F;&#x2F; 计算结果存入 局部变量2 中 也就是c</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h4><p>动态链接是值对象实例的非静态方法的指针.</p>
+<h4 id="程序出口"><a href="#程序出口" class="headerlink" title="程序出口"></a>程序出口</h4><p>程序出口:记录程序退出的位置.</p>
+<h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/stack.png" alt="stack"></p>
+<p>java GC 机制是将对象不可达的内容回收释放掉.</p>
+<p>默认情况下:</p>
+<p>新生代 :  老年代   =   1 :  2</p>
+<p>eden  :  s0  :  s1  =   8  :  1  :   1</p>
+<p>但是这些都是可以通过JVM参数调整的.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/07/synchronized-%E6%80%BB%E7%BB%93/" rel="prev" title="synchronized 总结">
+      <i class="fa fa-chevron-left"></i> synchronized 总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/08/JVM%E6%8C%87%E4%BB%A4%E9%9B%86%E4%BB%A3%E7%A0%81%E6%9F%A5%E8%AF%A2%E6%96%B9%E6%B3%95/" rel="next" title="JVM指令集代码查询方法">
+      JVM指令集代码查询方法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E4%BB%A3%E7%A0%81%E6%98%AF%E6%80%8E%E4%B9%88%E8%A2%ABJVM%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%89%80%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">1.</span> <span class="nav-text">Java 代码是怎么被JVM虚拟机所执行的.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">JVM 的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.</span> <span class="nav-text">类加载系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E5%8C%BA"><span class="nav-number">2.2.</span> <span class="nav-text">堆区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">2.3.</span> <span class="nav-text">元数据区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">2.4.</span> <span class="nav-text">程序计数器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="nav-number">2.5.</span> <span class="nav-text">字节码执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E5%8C%BA-%E6%A0%88%E5%B8%A7"><span class="nav-number">2.6.</span> <span class="nav-text">栈区&#x2F;栈帧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F"><span class="nav-number">2.6.1.</span> <span class="nav-text">局部变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%95%B0%E6%A0%88"><span class="nav-number">2.6.2.</span> <span class="nav-text">操作数栈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="nav-number">2.6.3.</span> <span class="nav-text">动态链接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%87%BA%E5%8F%A3"><span class="nav-number">2.6.4.</span> <span class="nav-text">程序出口</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="nav-number">3.</span> <span class="nav-text">垃圾回收</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
