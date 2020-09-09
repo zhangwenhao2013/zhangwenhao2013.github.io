@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/stack.png">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/array.png">
 <meta property="article:published_time" content="2020-09-07T11:03:25.000Z">
-<meta property="article:modified_time" content="2020-09-08T02:51:06.966Z">
+<meta property="article:modified_time" content="2020-09-09T01:27:59.049Z">
 <meta property="article:author" content="zhangwenhao">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
@@ -187,7 +187,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-08 10:51:06" itemprop="dateModified" datetime="2020-09-08T10:51:06+08:00">2020-09-08</time>
+                <time title="Modified: 2020-09-09 09:27:59" itemprop="dateModified" datetime="2020-09-09T09:27:59+08:00">2020-09-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -218,9 +218,9 @@
 <p>前面本想总结下<code>synchronized</code>的,但是呢synchronized涉及到Object 对象头, 对象头又设计到对象的初始化, 涉及到JVM , 涉及到 类加载. 所以准备从头到尾的来总结一遍. 类加载的回头补上,今天先从JVM开始画.</p>
 <p>开头的图摘自 官网<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/">Developer Guides</a></p>
 <h2 id="Java-代码是怎么被JVM虚拟机所执行的"><a href="#Java-代码是怎么被JVM虚拟机所执行的" class="headerlink" title="Java 代码是怎么被JVM虚拟机所执行的."></a>Java 代码是怎么被JVM虚拟机所执行的.</h2><p>我们的<code>Xxx.java</code> 文件,经过<code>javac</code> 编码成 <code>Xxx.class</code></p>
-<p><code>Xxx.class</code>是JVM 所能解析的 二进制文件, JVM将<code>Xxx.class</code> 根据执行机器上的JDK环境将文件内容处理成该运行机器所能处理的汇编指令.</p>
-<p>我们可以通过<code>javap</code> 指令,也将<code>Xxx.class</code> 转成汇编指令.</p>
-<p>JVM 最初就是执行转换后的汇编指令来执行我们所编写的java代码.</p>
+<p><code>Xxx.class</code>是JVM 所能解析的 二进制文件, JVM将<code>Xxx.class</code> 根据执行机器上的JDK环境将文件内容处理成JVM指令.</p>
+<p>我们可以通过<code>javap</code> 指令,也将<code>Xxx.class</code> 转成JVM指令.</p>
+<p>JVM 最初就是执行转换后的JVM指令来执行我们所编写的java代码.</p>
 <h2 id="JVM-的结构"><a href="#JVM-的结构" class="headerlink" title="JVM 的结构"></a>JVM 的结构</h2><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5">官方解释</a></p>
 <p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/Jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" alt="Jvm内存模型"></p>
 <h3 id="类加载系统"><a href="#类加载系统" class="headerlink" title="类加载系统"></a>类加载系统</h3><p>负责将类加载到内存区,本着Java中万物皆对象,负责加载类的相关类也是JAVA对象, 比如 <code>ClassLoader</code>,类加载系统不仅仅限于类加载器,底层是基于C去实现加载的.</p>
