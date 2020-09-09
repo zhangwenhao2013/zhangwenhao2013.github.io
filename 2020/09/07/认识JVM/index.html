@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/stack.png">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/09/07/%E8%AE%A4%E8%AF%86JVM/array.png">
 <meta property="article:published_time" content="2020-09-07T11:03:25.000Z">
-<meta property="article:modified_time" content="2020-09-09T01:27:59.049Z">
+<meta property="article:modified_time" content="2020-09-09T02:09:28.312Z">
 <meta property="article:author" content="zhangwenhao">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
@@ -187,7 +187,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-09 09:27:59" itemprop="dateModified" datetime="2020-09-09T09:27:59+08:00">2020-09-09</time>
+                <time title="Modified: 2020-09-09 10:09:28" itemprop="dateModified" datetime="2020-09-09T10:09:28+08:00">2020-09-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,8 +221,8 @@
 <p><code>Xxx.class</code>是JVM 所能解析的 二进制文件, JVM将<code>Xxx.class</code> 根据执行机器上的JDK环境将文件内容处理成JVM指令.</p>
 <p>我们可以通过<code>javap</code> 指令,也将<code>Xxx.class</code> 转成JVM指令.</p>
 <p>JVM 最初就是执行转换后的JVM指令来执行我们所编写的java代码.</p>
-<h2 id="JVM-的结构"><a href="#JVM-的结构" class="headerlink" title="JVM 的结构"></a>JVM 的结构</h2><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5">官方解释</a></p>
-<p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/Jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" alt="Jvm内存模型"></p>
+<h2 id="JVM-运行时数据区结构"><a href="#JVM-运行时数据区结构" class="headerlink" title="JVM 运行时数据区结构"></a>JVM 运行时数据区结构</h2><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5">官方解释</a></p>
+<p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/Jvm%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png" alt="Jvm运行时数据区结构"></p>
 <h3 id="类加载系统"><a href="#类加载系统" class="headerlink" title="类加载系统"></a>类加载系统</h3><p>负责将类加载到内存区,本着Java中万物皆对象,负责加载类的相关类也是JAVA对象, 比如 <code>ClassLoader</code>,类加载系统不仅仅限于类加载器,底层是基于C去实现加载的.</p>
 <h3 id="堆区"><a href="#堆区" class="headerlink" title="堆区"></a>堆区</h3><p>堆区:用于存放对象实例,我们<code>new</code>出来的对象一般都存储在堆上.(但也有特殊情况,有时候会存在栈上). </p>
 <p><img src="/2020/09/07/%E8%AE%A4%E8%AF%86JVM/stack.png" alt="stack"></p>
@@ -231,10 +231,11 @@
 <p>eden  :  s0  :  s1  =   8  :  1  :   1</p>
 <p>但是这些都是可以通过JVM参数调整的.</p>
 <p>堆区是线程共享的.</p>
-<h3 id="元数据区"><a href="#元数据区" class="headerlink" title="元数据区"></a>元数据区</h3><p>用于存储运行时常量池,类信息,常量静态变量.</p>
+<h3 id="元数据区-运行时常量池"><a href="#元数据区-运行时常量池" class="headerlink" title="元数据区(运行时常量池)"></a>元数据区(运行时常量池)</h3><p>用于存储运行时常量池,类信息,常量静态变量.</p>
 <p>元数据区是线程共享的.</p>
-<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>程序计数器:记录程序在内存中的指针位置</p>
-<h3 id="字节码执行引擎"><a href="#字节码执行引擎" class="headerlink" title="字节码执行引擎"></a>字节码执行引擎</h3><p>字节码执行引擎:负责修改程序计数器</p>
+<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>程序计数器:记录程序在内存中的指针位置,可以理解为当前线程执行的字节码的行号指示器.</p>
+<p>字节码执行引擎通过改变计数器这个值来选取下一条需要执行的字节码指令,分支,循环,跳转,异常处理,线程恢复等功能都需要依赖计数器来完成.</p>
+<h3 id="字节码执行引擎"><a href="#字节码执行引擎" class="headerlink" title="字节码执行引擎"></a>字节码执行引擎</h3><p>字节码执行引擎:负责执行加载到元数据区的字节码文件 和 修改程序计数器.</p>
 <h3 id="栈区-栈帧"><a href="#栈区-栈帧" class="headerlink" title="栈区/栈帧"></a>栈区/栈帧</h3><p>栈区/栈帧: 线程运行时开辟出来的一快内存空间,有称栈帧.是线程独享的一块空间. 栈帧内部又可以分为4块: </p>
 <ul>
 <li>局部变量存储空间</li>
@@ -360,7 +361,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E4%BB%A3%E7%A0%81%E6%98%AF%E6%80%8E%E4%B9%88%E8%A2%ABJVM%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%89%80%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">1.</span> <span class="nav-text">Java 代码是怎么被JVM虚拟机所执行的.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">JVM 的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.</span> <span class="nav-text">类加载系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E5%8C%BA"><span class="nav-number">2.2.</span> <span class="nav-text">堆区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">2.3.</span> <span class="nav-text">元数据区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">2.4.</span> <span class="nav-text">程序计数器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="nav-number">2.5.</span> <span class="nav-text">字节码执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E5%8C%BA-%E6%A0%88%E5%B8%A7"><span class="nav-number">2.6.</span> <span class="nav-text">栈区&#x2F;栈帧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F"><span class="nav-number">2.6.1.</span> <span class="nav-text">局部变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%95%B0%E6%A0%88"><span class="nav-number">2.6.2.</span> <span class="nav-text">操作数栈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="nav-number">2.6.3.</span> <span class="nav-text">动态链接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%87%BA%E5%8F%A3"><span class="nav-number">2.6.4.</span> <span class="nav-text">程序出口</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E4%BB%A3%E7%A0%81%E6%98%AF%E6%80%8E%E4%B9%88%E8%A2%ABJVM%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%89%80%E6%89%A7%E8%A1%8C%E7%9A%84"><span class="nav-number">1.</span> <span class="nav-text">Java 代码是怎么被JVM虚拟机所执行的.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JVM-%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">JVM 运行时数据区结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.1.</span> <span class="nav-text">类加载系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E5%8C%BA"><span class="nav-number">2.2.</span> <span class="nav-text">堆区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E5%8C%BA-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-number">2.3.</span> <span class="nav-text">元数据区(运行时常量池)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">2.4.</span> <span class="nav-text">程序计数器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="nav-number">2.5.</span> <span class="nav-text">字节码执行引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E5%8C%BA-%E6%A0%88%E5%B8%A7"><span class="nav-number">2.6.</span> <span class="nav-text">栈区&#x2F;栈帧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F"><span class="nav-number">2.6.1.</span> <span class="nav-text">局部变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%95%B0%E6%A0%88"><span class="nav-number">2.6.2.</span> <span class="nav-text">操作数栈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="nav-number">2.6.3.</span> <span class="nav-text">动态链接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%87%BA%E5%8F%A3"><span class="nav-number">2.6.4.</span> <span class="nav-text">程序出口</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
