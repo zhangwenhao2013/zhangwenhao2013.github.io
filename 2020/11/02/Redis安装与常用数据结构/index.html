@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/11/02/Redis%E5%AE%89%E8%A3%85%E4%B8%8E%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/a4.png">
 <meta property="og:image" content="https://zhangwenhao2013.github.io/2020/11/02/Redis%E5%AE%89%E8%A3%85%E4%B8%8E%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/a5.png">
 <meta property="article:published_time" content="2020-11-02T06:39:54.000Z">
-<meta property="article:modified_time" content="2020-11-03T08:48:24.204Z">
+<meta property="article:modified_time" content="2020-11-03T09:12:30.553Z">
 <meta property="article:author" content="zhangwenhao">
 <meta property="article:tag" content="REDIS">
 <meta property="article:tag" content="LINUX">
@@ -189,7 +189,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-03 16:48:24" itemprop="dateModified" datetime="2020-11-03T16:48:24+08:00">2020-11-03</time>
+                <time title="Modified: 2020-11-03 17:12:30" itemprop="dateModified" datetime="2020-11-03T17:12:30+08:00">2020-11-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -323,6 +323,21 @@
 <ul>
 <li>排行版需求/热点需求</li>
 </ul>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p>不推荐使用<strong>KEYS</strong> ,推荐使用<strong>SCAN</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">获取所有key</span><br><span class="line">keys * </span><br><span class="line"></span><br><span class="line">带规则</span><br><span class="line">keys a* </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">scan cursor [MATCH pattern] [COUNT count]</span><br><span class="line"></span><br><span class="line">cursor  游标</span><br><span class="line">count   是每次大概输出的数量</span><br></pre></td></tr></table></figure>
+
+<h2 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h2><ul>
+<li>Redis 是否是单存的单线程?</li>
+</ul>
+<p>Redis服务与客户端的网络已经键值对读写是由一个线程来完成的,但Redis的持久化,集群数据同步等是异步线程负责的.</p>
+<ul>
+<li>Redis 为什么快?</li>
+</ul>
+<p>Redis快,是因为Redis的数据操作都是基于内存操作的.</p>
+<ul>
+<li>单线程如何处理那么多的并发客户端连接的?</li>
+</ul>
+<p>我们知道Redis是基于内存操作的,性能瓶颈一部分在I/O, Redis采用I/O多路复的策略,将客户端连接信息和事件添加到队列,当一个操作完成了,直接获取到连接信息复用上一个I/O实例.</p>
 
     </div>
 
@@ -404,7 +419,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis-%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">Redis 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E7%8E%AF%E5%A2%83%E4%BD%BF%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">Linux环境使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis-%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">Redis 常用数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2String%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">字符串String数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#key-value-%E5%AD%98%E5%82%A8%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">2.1.1.</span> <span class="nav-text">key - value 存储字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">2.1.2.</span> <span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%A2%9Eid-%E8%87%AA%E5%8A%A0"><span class="nav-number">2.1.3.</span> <span class="nav-text">自增id&#x2F;自加</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8CHash%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">哈希Hash数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%97%E8%A1%A8List%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.</span> <span class="nav-text">列表List数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88Set%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.4.</span> <span class="nav-text">集合Set数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88Zset%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.5.</span> <span class="nav-text">有序集合Zset数据结构</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis-%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">Redis 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E7%8E%AF%E5%A2%83%E4%BD%BF%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">Linux环境使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis-%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">Redis 常用数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2String%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">字符串String数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#key-value-%E5%AD%98%E5%82%A8%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">2.1.1.</span> <span class="nav-text">key - value 存储字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">2.1.2.</span> <span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%A2%9Eid-%E8%87%AA%E5%8A%A0"><span class="nav-number">2.1.3.</span> <span class="nav-text">自增id&#x2F;自加</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8CHash%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">哈希Hash数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%97%E8%A1%A8List%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.</span> <span class="nav-text">列表List数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88Set%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.4.</span> <span class="nav-text">集合Set数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88Zset%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.5.</span> <span class="nav-text">有序集合Zset数据结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">3.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">3.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QA"><span class="nav-number">3.2.</span> <span class="nav-text">QA</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
