@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Redis虽然是基于内存操作的,但是其还是可以支持持久化到文件的,不然一个服务宕机就没法玩了,Redis持久化,是为了保存数据,主从模式,已经哨兵模式 也是为了围绕保存数据,以及更稳定的提供数据服务而设计的.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis持久化和主从模式和哨兵模式">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="Redis虽然是基于内存操作的,但是其还是可以支持持久化到文件的,不然一个服务宕机就没法玩了,Redis持久化,是为了保存数据,主从模式,已经哨兵模式 也是为了围绕保存数据,以及更稳定的提供数据服务而设计的.">
+<meta property="og:locale">
+<meta property="og:image" content="https://some.png/">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/rdb-aof.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/2.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/%E5%85%A8%E9%87%8F%E5%A4%8D%E5%88%B6.png">
+<meta property="article:published_time" content="2020-11-04T07:09:32.000Z">
+<meta property="article:modified_time" content="2020-11-04T10:08:50.131Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="REDIS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://some.png/">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>Redis持久化和主从模式和哨兵模式 | 老柯南</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis持久化和主从模式和哨兵模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-11-04 15:09:32 / Modified: 18:08:50" itemprop="dateCreated datePublished" datetime="2020-11-04T15:09:32+08:00">2020-11-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/REDIS/" itemprop="url" rel="index"><span itemprop="name">REDIS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Redis虽然是基于内存操作的,但是其还是可以支持持久化到文件的,不然一个服务宕机就没法玩了,Redis持久化,是为了保存数据,主从模式,已经哨兵模式 也是为了围绕保存数据,以及更稳定的提供数据服务而设计的.</p>
+<p><img src="https://some.png/" alt="网络图片"></p>
+<a id="more"></a>
+
+
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>默认情况下 Redis 是通过异步的方式备份数据. 通过配置文件可以看到,Redis 可以配置两种持久会数据的方式.</p>
+<p>如果我们需要让Redis按我们指定的配置启动.可以这样操作:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server redis.conf</span><br></pre></td></tr></table></figure>
+
+<p>开启持久化之后,即使服务重启.Redis服务会将持久化的数据恢复.</p>
+<h3 id="RDB-快照模式-SNAPSHOTTING"><a href="#RDB-快照模式-SNAPSHOTTING" class="headerlink" title="RDB | 快照模式(SNAPSHOTTING)"></a>RDB | 快照模式(SNAPSHOTTING)</h3><p>通过<strong>redis.conf</strong> 配置文件,可以找到如下配置内容.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">################################ SNAPSHOTTING  ################################</span><br><span class="line">每多少秒(900&#x2F;300&#x2F;60)   有多少次(1&#x2F;10&#x2F;10000)数据操作(写&#x2F;修改)  保存一次</span><br><span class="line">save 900 1</span><br><span class="line">save 300 10</span><br><span class="line">save 60 10000</span><br><span class="line"></span><br><span class="line">当后台写保存出错 停止写</span><br><span class="line">stop-writes-on-bgsave-error yes</span><br><span class="line"></span><br><span class="line">将数据保存到rdb文件时 是否启用压缩</span><br><span class="line">rdbcompression no</span><br><span class="line"></span><br><span class="line">检查数量</span><br><span class="line">rdbchecksum yes</span><br><span class="line"></span><br><span class="line">指定rdb文件名</span><br><span class="line">dbfilename dump.rdb</span><br><span class="line"></span><br><span class="line">指定数据(log文件&#x2F;rdb文件)保存路径</span><br><span class="line">dir &#x2F;usr&#x2F;local&#x2F;redis-5.0.2&#x2F;data&#x2F;6379</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>之前说过,Redis 默认情况下 是通过RDB 快照的方式保存数据. 只要</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">save xxs  yycount</span><br></pre></td></tr></table></figure>
+
+<p>有设置,就会启动RDB持久化方式.如果想禁用RDB持久化方式,可以将<strong>save</strong> 全部注释.</p>
+<p>我们在链接到Redis-cli时,也可以手动调用RDB持久化方式,通过<strong>save</strong>命令或者<strong>bgsave</strong>命令手动让Redis执行持久化数据到 <strong>.rdb</strong>文件.</p>
+<p>其中<strong>save</strong> 是同步操作,会阻塞Redis的其他命令.</p>
+<h4 id="bgsave"><a href="#bgsave" class="headerlink" title="bgsave"></a>bgsave</h4><p>bgsave 后台保存Redis主线程的数据 ,不会阻塞Redis主线程的命令. bgsave有一个<strong>写时复制(copy on write)机制</strong>.</p>
+<p>写时复制(copy on write)机制: 开启一个新进程用于保存Redis主线程的数据,即使在Redis 主线程进行进行写操作时,也是可以正常保存数据的.</p>
+<p><img src="/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1.png" alt="bgsave"></p>
+<p>在执行bgsave的时候,会开启进程专门负责保存数据, bgsave 将Redis 主线程内存中的数据fork 一份,将数据保存到.rdb 文件.</p>
+<p>如果客户端只是单纯的读redis数据,没有任何影响;</p>
+<p>如果客户端需要写数据,新写的数据会被复制一份,bgsave会把这份复制数据保存到.rdb文件.</p>
+<h4 id="rdb文件"><a href="#rdb文件" class="headerlink" title=".rdb文件"></a>.rdb文件</h4><p><strong>.rdb文件</strong> 打开之后看不到直接存储的数据,而是一堆二进制数据.</p>
+<p>不管 <strong>save xx  yy</strong> 怎么设置,RDB持久化的方式都感觉差点意思:</p>
+<p>设置的太紧凑,就频繁调用,设置的太稀疏,数据又容易丢失(如果宕机,还没触发bgsave).</p>
+<h3 id="AOF-APPEND-ONLY-MODE"><a href="#AOF-APPEND-ONLY-MODE" class="headerlink" title="AOF(APPEND ONLY MODE)"></a>AOF(APPEND ONLY MODE)</h3><p>前面觉得RDB持久化的方式总是感觉差点意思.不管怎么配置都觉着不靠谱.</p>
+<p>AOF的方式,是将<strong>Redis主线程操作记录</strong>到<strong>appendonly.aof</strong>文件(文件名可以通过配置修改), 可以通过<strong>appendfsync</strong> 配置同步策略,如果配置的策略是everysec, 及时宕机事故发生,也只是丢失1s的数据,而且还可以通过其他策略避免这种情况的发生.</p>
+<p>下面是<strong>redis.conf</strong> 文件中关于AOF的配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">############################## APPEND ONLY MODE ###############################</span><br><span class="line">是否开启 AOF</span><br><span class="line">appendonly no</span><br><span class="line"></span><br><span class="line">aof持久化保存文件名称</span><br><span class="line">appendfilename &quot;appendonly.aof&quot;</span><br><span class="line"></span><br><span class="line">aof 同步策略 3种策略(no always everysec)</span><br><span class="line"># appendfsync always</span><br><span class="line">appendfsync everysec</span><br><span class="line"># appendfsync no</span><br><span class="line"></span><br><span class="line">注释说如果有延时问题就开启</span><br><span class="line">no-appendfsync-on-rewrite no</span><br><span class="line"></span><br><span class="line">aof文件达到上次重写 多少percent触发重写</span><br><span class="line">auto-aof-rewrite-percentage 100</span><br><span class="line"></span><br><span class="line">第一次aof文件重写触发大小</span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br><span class="line"></span><br><span class="line">重启修复数据</span><br><span class="line">aof-load-truncated yes</span><br><span class="line"></span><br><span class="line">aof 混合 RDB 持久化</span><br><span class="line">aof-use-rdb-preamble yes</span><br></pre></td></tr></table></figure>
+
+<h4 id="AOF-重写"><a href="#AOF-重写" class="headerlink" title="AOF 重写"></a>AOF 重写</h4><p>前面说了,开启AOF之后,Redis会根据同步策略,将Redis对数据的操作记录持久化到.aof文件. 如果时间长了, .aof文件必然很大. </p>
+<p>假设一个这样的场景, Redis频繁对一个字段进行修改, 会导致.aof存储了很多对这个字段操作的历史过程, 我们持久化的目的是为了保存最终数据,而不是操作数据的过程,所以中间的操作历史存储在.aof文件中几乎没有任何价值,反倒是占用空间.</p>
+<p>因此, Redis 有一个AOF 重写机制:  开启一个新进程负责重新.aof文件.</p>
+<p>将.aof文件中无用的操作记录移除,只保留最后的数据记录.</p>
+<h4 id="aof-文件格式"><a href="#aof-文件格式" class="headerlink" title=".aof 文件格式"></a>.aof 文件格式</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[root@oldconan 6379]# cat appendonly.aof </span><br><span class="line">*2</span><br><span class="line">$6</span><br><span class="line">SELECT</span><br><span class="line">$1</span><br><span class="line">0</span><br><span class="line">*3</span><br><span class="line">$3</span><br><span class="line">set</span><br><span class="line">$1</span><br><span class="line">a</span><br><span class="line">$1</span><br><span class="line">a</span><br><span class="line">*3</span><br><span class="line">$3</span><br><span class="line">set</span><br><span class="line">$1</span><br><span class="line">b</span><br><span class="line">$1</span><br><span class="line">b</span><br><span class="line">*3</span><br><span class="line">$3</span><br><span class="line">set</span><br><span class="line">$3</span><br><span class="line">aaa</span><br><span class="line">$3</span><br><span class="line">aaa</span><br><span class="line">*3</span><br><span class="line">$3</span><br><span class="line">set</span><br><span class="line">$3</span><br><span class="line">ccc</span><br><span class="line">$3</span><br><span class="line">ccc</span><br></pre></td></tr></table></figure>
+
+<p>头</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">*2</span><br><span class="line">$6</span><br><span class="line">SELECT</span><br><span class="line">$1</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<p>数据存储</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">*3       # 开始标记</span><br><span class="line">$3       # 表示后面的字符长度</span><br><span class="line">set      # 操作</span><br><span class="line">$1       # 表示后面的字符长度</span><br><span class="line">a        # key</span><br><span class="line">$1       # 表示后面的字符长度</span><br><span class="line">a        # value</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="AOF-RDB-混合模式"><a href="#AOF-RDB-混合模式" class="headerlink" title="AOF RDB 混合模式"></a>AOF RDB 混合模式</h4><p>在Redis服务重启的时候, 需要从持久化文件中恢复数据,</p>
+<p>如果是从RDB文件中恢复,虽然恢复快,可能数据不全.</p>
+<p>如果从AOF文件中恢复,AOF文件通常比较大,恢复慢.</p>
+<p>所谓小朋友才做选择,成年人是都要. 我们想要AOF 模式和 RDB 模式两个结合使用.发挥两种模式的优势.</p>
+<p>首先我们需要了解下两种模式的区别</p>
+<p><img src="/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/rdb-aof.png" alt="rdb-aof"></p>
+<p>可以通过设置<strong>aof-use-rdb-preamble yes</strong>来开启混合模式.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aof-use-rdb-preamble yes</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/2.png" alt="混合模式"></p>
+<p>重启Redis恢复数据:</p>
+<ul>
+<li><p>存储在.aof文件的旧的数据,加载进内存,同时会通过RDB的方式存储到新的.aof文件.原先的.aof文件被覆盖.</p>
+</li>
+<li><p>新进来的数据,会通过原本AOF的方式持久化其操作.</p>
+</li>
+</ul>
+<p>这样一来,<strong>appendonly.aof</strong>文件就不是前面给出的那种样子了,而是rdb里的二进制数据和原aof文件里面操作记录一起了.</p>
+<h2 id="模式服务"><a href="#模式服务" class="headerlink" title="模式服务"></a>模式服务</h2><h3 id="主从模式"><a href="#主从模式" class="headerlink" title="主从模式"></a>主从模式</h3><p><img src="/2020/11/04/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%92%8C%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/%E5%85%A8%E9%87%8F%E5%A4%8D%E5%88%B6.png" alt="全量复制"></p>
+<h3 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/REDIS/" rel="tag"># REDIS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/02/Redis%E5%AE%89%E8%A3%85%E4%B8%8E%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="prev" title="Redis安装与常用数据结构">
+      <i class="fa fa-chevron-left"></i> Redis安装与常用数据结构
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RDB-%E5%BF%AB%E7%85%A7%E6%A8%A1%E5%BC%8F-SNAPSHOTTING"><span class="nav-number">1.1.</span> <span class="nav-text">RDB | 快照模式(SNAPSHOTTING)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#bgsave"><span class="nav-number">1.1.1.</span> <span class="nav-text">bgsave</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rdb%E6%96%87%E4%BB%B6"><span class="nav-number">1.1.2.</span> <span class="nav-text">.rdb文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF-APPEND-ONLY-MODE"><span class="nav-number">1.2.</span> <span class="nav-text">AOF(APPEND ONLY MODE)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF-%E9%87%8D%E5%86%99"><span class="nav-number">1.2.1.</span> <span class="nav-text">AOF 重写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#aof-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">.aof 文件格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF-RDB-%E6%B7%B7%E5%90%88%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.2.3.</span> <span class="nav-text">AOF RDB 混合模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.</span> <span class="nav-text">模式服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">主从模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">哨兵模式</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
