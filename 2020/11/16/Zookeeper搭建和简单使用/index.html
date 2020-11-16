@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="ZooKeeper是用于维护配置信息，命名，提供分布式同步以及提供组服务的集中式服务.ZooKeeper底层实现是Java来实现的,所有需要Java环境.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZooKeeper搭建和简单使用">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2020/11/16/Zookeeper%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="ZooKeeper是用于维护配置信息，命名，提供分布式同步以及提供组服务的集中式服务.ZooKeeper底层实现是Java来实现的,所有需要Java环境.">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-11-16T07:52:16.000Z">
+<meta property="article:modified_time" content="2020-11-16T08:46:33.925Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="Zookeeper">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2020/11/16/Zookeeper%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>ZooKeeper搭建和简单使用 | 老柯南</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/11/16/Zookeeper%E6%90%AD%E5%BB%BA%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ZooKeeper搭建和简单使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-11-16 15:52:16 / Modified: 16:46:33" itemprop="dateCreated datePublished" datetime="2020-11-16T15:52:16+08:00">2020-11-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Zookeeper/" itemprop="url" rel="index"><span itemprop="name">Zookeeper</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ZooKeeper是用于维护配置信息，命名，提供分布式同步以及提供组服务的集中式服务.ZooKeeper底层实现是<strong>Java</strong>来实现的,所有需要Java环境.</p>
+<a id="more"></a>
+
+
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><h3 id="Linux-JDK搭建"><a href="#Linux-JDK搭建" class="headerlink" title="Linux JDK搭建"></a>Linux JDK搭建</h3><ul>
+<li>1  获取CPU架构</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -m</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>2 下载对应的JDK,上传到Linux服务器</li>
+</ul>
+<p>这里采用的<strong>sftp</strong>的方式上传文件.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sftp user@ip</span><br><span class="line"></span><br><span class="line">put  物理机文件路径 虚拟机文件需要存储的路径</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>3 解压文件 + 配置环境变量 </p>
+</li>
+<li><p>4 检查 </p>
+</li>
+</ul>
+<h3 id="Linux-ZooKeeper-搭建"><a href="#Linux-ZooKeeper-搭建" class="headerlink" title="Linux ZooKeeper 搭建"></a>Linux ZooKeeper 搭建</h3><p><a target="_blank" rel="noopener" href="https://downloads.apache.org/zookeeper/">下载路径</a></p>
+<ul>
+<li><p>下载ZooKeeper对应的压缩包;</p>
+</li>
+<li><p>解压</p>
+</li>
+</ul>
+<h2 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h2><p>ZooKeeper 有两个核心概念: <strong>文件系统数据结构</strong>, <strong>监听通知机制</strong>.</p>
+<h3 id="文件系统数据结构"><a href="#文件系统数据结构" class="headerlink" title="文件系统数据结构"></a>文件系统数据结构</h3><p>在Zookeeper系统中,所有的节点都可以理解为是一个文件夹,所有访问任何一个节点都会带上一个 <strong>/</strong>.</p>
+<h4 id="文件节点类型"><a href="#文件节点类型" class="headerlink" title="文件节点类型"></a>文件节点类型</h4><p>在<strong>v3.5</strong>之前只有四种节点类型, 在<strong>v3.5</strong> 之后增加了 容器节点和 TTL节点类型;</p>
+<ul>
+<li><p>持久化节点 (默认)</p>
+</li>
+<li><p>持久化顺序节点 (-s)</p>
+</li>
+<li><p>临时节点 (-e)</p>
+</li>
+<li><p>临时顺序节点 (-e -s)</p>
+</li>
+<li><p>容器节点 (-c)</p>
+</li>
+<li><p>TTL 节点 (-t)</p>
+<h4 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h4></li>
+</ul>
+<p>系统提供的help 文档:</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">ZooKeeper -server host:port cmd args</span><br><span class="line">addauth scheme auth</span><br><span class="line">close </span><br><span class="line">config [-c] [-w] [-s]</span><br><span class="line">connect host:port</span><br><span class="line">create [-s] [-e] [-c] [-t ttl] path [data] [acl]</span><br><span class="line">delete [-v version] path</span><br><span class="line">deleteall path</span><br><span class="line">delquota [-n|-b] path</span><br><span class="line">get [-s] [-w] path</span><br><span class="line">getAcl [-s] path</span><br><span class="line">history </span><br><span class="line">listquota path</span><br><span class="line">ls [-s] [-w] [-R] path</span><br><span class="line">ls2 path [watch]</span><br><span class="line">printwatches on|off</span><br><span class="line">quit </span><br><span class="line">reconfig [-s] [-v version] [[-file path] | [-members serverID&#x3D;host:port1:port2;port3[,...]*]] | [-add serverId&#x3D;host:port1:port2;port3[,...]]* [-remove serverId[,...]*]</span><br><span class="line">redo cmdno</span><br><span class="line">removewatches path [-c|-d|-a] [-l]</span><br><span class="line">rmr path</span><br><span class="line">set [-s] [-v version] path data</span><br><span class="line">setAcl [-s] [-v version] [-R] path acl</span><br><span class="line">setquota -n|-b val path</span><br><span class="line">stat [-w] path</span><br><span class="line">sync path</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="监听通知机制"><a href="#监听通知机制" class="headerlink" title="监听通知机制"></a>监听通知机制</h3><p>Zookeeper系统中, Zookeeper客户端可以监听任意节点,节点可以是单个节点(如果没有子节点),可以是目录节点(有子节点),也可以是一整个节点树;</p>
+<ul>
+<li><p>单个节点</p>
+</li>
+<li><p>目录节点</p>
+</li>
+<li><p>整个节点树</p>
+</li>
+</ul>
+<p>不管是单个节点,还是整个节点树,Zookeeper都只是给节点注册一次监听,如果监听被触发,随后这个监听就会被移除,客户端如果想持续监听,就必须再次注册监听.</p>
+<p>Zookeeper有如下这些个事件</p>
+<ul>
+<li><p>None: 连接建立事件</p>
+</li>
+<li><p>NodeCreated: 节点创建 </p>
+</li>
+<li><p>NodeDeleted: 节点删除 </p>
+</li>
+<li><p>NodeDataChanged:节点数据变化</p>
+</li>
+<li><p>NodeChildrenChanged:子节点列表变化 </p>
+</li>
+<li><p>DataWatchRemoved:节点监听被移除 </p>
+</li>
+<li><p>ChildWatchRemoved:子节点监听被移除</p>
+</li>
+</ul>
+<h4 id="监听单个节点"><a href="#监听单个节点" class="headerlink" title="监听单个节点"></a>监听单个节点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get -w &#x2F;path</span><br></pre></td></tr></table></figure>
+<h4 id="监听目录节点"><a href="#监听目录节点" class="headerlink" title="监听目录节点"></a>监听目录节点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -s &#x2F;pathdir</span><br></pre></td></tr></table></figure>
+
+<h4 id="监听整个节点树"><a href="#监听整个节点树" class="headerlink" title="监听整个节点树"></a>监听整个节点树</h4><p>树上每个节点的监听都只会被触发一次.相当于遍历执行了<strong>get -w /path</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -w -R &#x2F;pathDir</span><br></pre></td></tr></table></figure>
+
+<h3 id="日志查看"><a href="#日志查看" class="headerlink" title="日志查看"></a>日志查看</h3><p>Zookeeper 默认输出的数据存储在 <strong>/tmp/Zookeeper</strong> 目录,可以在<strong>启动Zookeeper的cfg</strong>配置.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@oldconan ~]# cd &#x2F;tmp&#x2F;zookeeper&#x2F;</span><br><span class="line">[root@oldconan zookeeper]# ll</span><br><span class="line">总用量 4</span><br><span class="line">drwxr-xr-x. 2 root root 68 11月 16 14:41 version-2</span><br><span class="line">-rw-r--r--. 1 root root  5 11月 16 14:40 zookeeper_server.pid</span><br><span class="line">[root@oldconan zookeeper]# cd version-2&#x2F;</span><br><span class="line">[root@oldconan version-2]# ll</span><br><span class="line">总用量 28</span><br><span class="line">-rw-r--r--. 1 root root 67108880 11月 16 14:35 log.1</span><br><span class="line">-rw-r--r--. 1 root root 67108880 11月 16 15:25 log.6</span><br><span class="line">-rw-r--r--. 1 root root      424 11月 16 14:13 snapshot.0</span><br><span class="line">-rw-r--r--. 1 root root      643 11月 16 14:40 snapshot.5</span><br><span class="line">[root@oldconan version-2]# </span><br></pre></td></tr></table></figure>
+
+<p>目录下面有两种文件,<strong>log文件</strong>, <strong>snapshot快照文件</strong>;</p>
+<p>如果想查看这两个文件,我们需要用的Java类的支持;</p>
+<p><strong>log</strong> 文件查看的方式: 进入到Zookeeper的**/lib**目录下. 执行如下命令. 数据内容是ASCIIM码.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@oldconan lib]# java -classpath .:slf4j-api-1.7.25.jar:zookeeper-3.5.8.jar:zookeeper-jute-3.5.8.jar  org.apache.zookeeper.server.LogFormatter &#x2F;tmp&#x2F;zookeeper&#x2F;version-2&#x2F;log.1</span><br><span class="line">SLF4J: Failed to load class &quot;org.slf4j.impl.StaticLoggerBinder&quot;.</span><br><span class="line">SLF4J: Defaulting to no-operation (NOP) logger implementation</span><br><span class="line">SLF4J: See http:&#x2F;&#x2F;www.slf4j.org&#x2F;codes.html#StaticLoggerBinder for further details.</span><br><span class="line">ZooKeeper Transactional Log File with dbid 0 txnlog format version 2</span><br><span class="line">20-11-16 下午02时21分37秒 session 0x1000b4e09350000 cxid 0x0 zxid 0x1 createSession 30000</span><br><span class="line"></span><br><span class="line">20-11-16 下午02时23分41秒 session 0x1000b4e09350000 cxid 0x1 zxid 0x2 create &#39;&#x2F;default,#64656661756c7450617468,v&#123;s&#123;31,s&#123;&#39;world,&#39;anyone&#125;&#125;&#125;,F,1</span><br><span class="line"></span><br><span class="line">20-11-16 下午02时26分24秒 session 0x1000b4e09350000 cxid 0x5 zxid 0x3 create &#39;&#x2F;aaa,#61656565,v&#123;s&#123;31,s&#123;&#39;world,&#39;anyone&#125;&#125;&#125;,T,2</span><br><span class="line"></span><br><span class="line">20-11-16 下午02时28分51秒 session 0x1000b4e09350000 cxid 0xc zxid 0x4 create &#39;&#x2F;default&#x2F;sub0,,v&#123;s&#123;31,s&#123;&#39;world,&#39;anyone&#125;&#125;&#125;,F,1</span><br><span class="line"></span><br><span class="line">20-11-16 下午02时35分36秒 session 0x1000b4e09350000 cxid 0x13 zxid 0x5 closeSession null</span><br><span class="line">EOF reached after 5 txns.</span><br><span class="line">[root@oldconan lib]# </span><br></pre></td></tr></table></figure>
+
+<p><strong>snapshot</strong>快照文件查看的方式:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@oldconan lib]# java -classpath .:slf4j-api-1.7.25.jar:zookeeper-3.5.8.jar:zookeeper-jute-3.5.8.jar  org.apache.zookeeper.server.SnapshotFormatter &#x2F;tmp&#x2F;zookeeper&#x2F;version-2&#x2F;snapshot.5</span><br><span class="line">SLF4J: Failed to load class &quot;org.slf4j.impl.StaticLoggerBinder&quot;.</span><br><span class="line">SLF4J: Defaulting to no-operation (NOP) logger implementation</span><br><span class="line">SLF4J: See http:&#x2F;&#x2F;www.slf4j.org&#x2F;codes.html#StaticLoggerBinder for further details.</span><br><span class="line">ZNode Details (count&#x3D;7):</span><br><span class="line">----</span><br><span class="line">&#x2F;</span><br><span class="line">  cZxid &#x3D; 0x00000000000000</span><br><span class="line">  ctime &#x3D; Thu Jan 01 08:00:00 CST 1970</span><br><span class="line">  mZxid &#x3D; 0x00000000000000</span><br><span class="line">  mtime &#x3D; Thu Jan 01 08:00:00 CST 1970</span><br><span class="line">  pZxid &#x3D; 0x00000000000005</span><br><span class="line">  cversion &#x3D; 2</span><br><span class="line">  dataVersion &#x3D; 0</span><br><span class="line">  aclVersion &#x3D; 0</span><br><span class="line">  ephemeralOwner &#x3D; 0x00000000000000</span><br><span class="line">  dataLength &#x3D; 0</span><br><span class="line">----</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Zookeeper/" rel="tag"># Zookeeper</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/05/Redis-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4/" rel="prev" title="Redis 高可用集群">
+      <i class="fa fa-chevron-left"></i> Redis 高可用集群
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux-JDK%E6%90%AD%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">Linux JDK搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux-ZooKeeper-%E6%90%AD%E5%BB%BA"><span class="nav-number">1.2.</span> <span class="nav-text">Linux ZooKeeper 搭建</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">简单使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">文件系统数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E8%8A%82%E7%82%B9%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.1.</span> <span class="nav-text">文件节点类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.2.</span> <span class="nav-text">常用命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E9%80%9A%E7%9F%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">监听通知机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E5%8D%95%E4%B8%AA%E8%8A%82%E7%82%B9"><span class="nav-number">2.2.1.</span> <span class="nav-text">监听单个节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E7%9B%AE%E5%BD%95%E8%8A%82%E7%82%B9"><span class="nav-number">2.2.2.</span> <span class="nav-text">监听目录节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E6%95%B4%E4%B8%AA%E8%8A%82%E7%82%B9%E6%A0%91"><span class="nav-number">2.2.3.</span> <span class="nav-text">监听整个节点树</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8B"><span class="nav-number">2.3.</span> <span class="nav-text">日志查看</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
