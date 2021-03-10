@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zhangwenhao2013.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前面我们知道了怎么搭建Zookeeper集群,只要涉及到集群,我们就有必要了解下其选举机制,Zookeeper 正好是通过JAVA来实现的,我们这就从源码来看看它的选举逻辑是怎么一回事的.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zookeeper 启动选举源码">
+<meta property="og:url" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/index.html">
+<meta property="og:site_name" content="老柯南">
+<meta property="og:description" content="前面我们知道了怎么搭建Zookeeper集群,只要涉及到集群,我们就有必要了解下其选举机制,Zookeeper 正好是通过JAVA来实现的,我们这就从源码来看看它的选举逻辑是怎么一回事的.">
+<meta property="og:locale">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p1.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p2.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p3.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p4.png">
+<meta property="og:image" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p6.png">
+<meta property="article:published_time" content="2020-12-20T05:25:25.000Z">
+<meta property="article:modified_time" content="2020-12-22T00:36:56.854Z">
+<meta property="article:author" content="zhangwenhao">
+<meta property="article:tag" content="JAVA">
+<meta property="article:tag" content="Zookeeper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p1.png">
+
+<link rel="canonical" href="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>Zookeeper 启动选举源码 | 老柯南</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">老柯南</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">晴耕雨读</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://zhangwenhao2013.github.io/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zhangwenhao">
+      <meta itemprop="description" content="告诉自己可以做好，即使是新事物，也一样可以做好">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老柯南">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Zookeeper 启动选举源码
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-12-20 13:25:25" itemprop="dateCreated datePublished" datetime="2020-12-20T13:25:25+08:00">2020-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-12-22 08:36:56" itemprop="dateModified" datetime="2020-12-22T08:36:56+08:00">2020-12-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/" itemprop="url" rel="index"><span itemprop="name">JAVA</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JAVA/Zookeeper/" itemprop="url" rel="index"><span itemprop="name">Zookeeper</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>前面我们知道了怎么搭建Zookeeper集群,只要涉及到集群,我们就有必要了解下其选举机制,Zookeeper 正好是通过JAVA来实现的,我们这就从源码来看看它的选举逻辑是怎么一回事的.</p>
+<a id="more"></a>
+
+<p>单机版本是不存在什么选举机制的,下面的跟源码的过程,建立在两个条件下:</p>
+<ul>
+<li><p>1 . Zookeeper 是集群环境.</p>
+</li>
+<li><p>2 . ServerCnxnFactory 是 NettyServerCnxnFactory,而不是NIOServerCnxnFactory.</p>
+</li>
+</ul>
+<h2 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h2><p><a target="_blank" rel="noopener" href="https://github.com/zhangwenhao2013/zookeeper.git">ZK 源码</a></p>
+<p>有需要的可以查看 <strong>feature/read_source_3.5.8</strong>分支.</p>
+<h2 id="本地启动"><a href="#本地启动" class="headerlink" title="本地启动"></a>本地启动</h2><p>我们在使用 Zookeeper 的时候有使用过<strong>zkServer.sh</strong>这个命令,因此,我们可以打开bin/zkServer.sh文件, ZK 启动的入口就在这个配置文件中.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZOOMAIN&#x3D;&quot;-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port&#x3D;$JMXPORT -Dcom.sun.management.jmxremote.authenticate&#x3D;$JMXAUTH -Dcom.sun.management.jmxremote.ssl&#x3D;$JMXSSL -Dzookeeper.jmx.log4j.disable&#x3D;$JMXLOG4J org.apache.zookeeper.server.quorum.QuorumPeerMain&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>QuorumPeerMain</strong>类就是 ZK 服务启动的入口.</p>
+<p>启动ZK, 不仅需要找到入口,还需要配置类, 配置类<strong>cnf/zoo_sample.cfg</strong>.</p>
+<p>这里我根据自己的需要单独弄了一个 <strong>cnf/zoo1.cfg</strong>的配置文件.</p>
+<p><img src="/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p1.png" alt="配置启动QuorumPeerMain"></p>
+<p>如此配置之后,就可以本地启动 ZK 服务端了. </p>
+<p>同样的方法,我们可以配置 ZK 客户端.</p>
+<p><img src="/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p2.png" alt="配置启动ZooKeeperMain"></p>
+<h2 id="源码解读"><a href="#源码解读" class="headerlink" title="源码解读"></a>源码解读</h2><h3 id="大概流程"><a href="#大概流程" class="headerlink" title="大概流程"></a>大概流程</h3><p><img src="/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p3.png" alt="zk 启动选举"></p>
+<p><img src="/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p4.png" alt="zk 启动选举选举机制"></p>
+<h3 id="源码验证"><a href="#源码验证" class="headerlink" title="源码验证"></a>源码验证</h3><p>  ZK 服务器启动的入口是 <strong>QuorumPeerMain.main()</strong> ;</p>
+<h4 id="解析配置"><a href="#解析配置" class="headerlink" title="解析配置"></a>解析配置</h4><p> 服务器启动,就会去读取配置.这里不对各个配置做解释,后续代码中如果出现了配置,再回来这边查找.</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">      QuorumPeerMain main &#x3D; new QuorumPeerMain();</span><br><span class="line">      try &#123;</span><br><span class="line">          main.initializeAndRun(args);</span><br><span class="line">          ...</span><br><span class="line">      &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">protected void initializeAndRun(String[] args)</span><br><span class="line">          throws ConfigException, IOException, AdminServerException &#123;</span><br><span class="line">      QuorumPeerConfig config &#x3D; new QuorumPeerConfig();</span><br><span class="line">      &#x2F;&#x2F; 有传参数</span><br><span class="line">      if (args.length &#x3D;&#x3D; 1) &#123;</span><br><span class="line">          &#x2F;**</span><br><span class="line">           * 解析cfg 类到config实例中</span><br><span class="line">           *&#x2F;</span><br><span class="line">          config.parse(args[0]);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      &#x2F;**</span><br><span class="line">       * 开启定时清理任务</span><br><span class="line">       *&#x2F;</span><br><span class="line">      &#x2F;&#x2F; Start and schedule the the purge task</span><br><span class="line">      DatadirCleanupManager purgeMgr &#x3D; new DatadirCleanupManager(config</span><br><span class="line">              .getDataDir(), config.getDataLogDir(), config</span><br><span class="line">              .getSnapRetainCount(), config.getPurgeInterval());</span><br><span class="line">      purgeMgr.start();</span><br><span class="line"></span><br><span class="line">      &#x2F;**</span><br><span class="line">       * 有配置 且是分布式</span><br><span class="line">       *&#x2F;</span><br><span class="line">      if (args.length &#x3D;&#x3D; 1 &amp;&amp; config.isDistributed()) &#123;</span><br><span class="line">          runFromConfig(config);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">          LOG.warn(&quot;Either no config or no quorum defined in config, running &quot;</span><br><span class="line">                  + &quot; in standalone mode&quot;);</span><br><span class="line">          &#x2F;&#x2F; there is only server in the quorum -- run as standalone</span><br><span class="line">          &#x2F;**</span><br><span class="line">           * 如果是没有参数,走单机模式</span><br><span class="line">           *&#x2F;</span><br><span class="line">          ZooKeeperServerMain.main(args);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="启动分布式逻辑"><a href="#启动分布式逻辑" class="headerlink" title="启动分布式逻辑"></a>启动分布式逻辑</h4><p>  <strong>runFromConfig(config)</strong> 只有zk在分布式情况下才会执行该逻辑.</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">public void runFromConfig(QuorumPeerConfig config)</span><br><span class="line">          throws IOException, AdminServerException &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      &#x2F;**</span><br><span class="line">       * 下面正式开启</span><br><span class="line">       *&#x2F;</span><br><span class="line">      LOG.info(&quot;Starting quorum peer&quot;);</span><br><span class="line">      try &#123;</span><br><span class="line">          ServerCnxnFactory cnxnFactory &#x3D; null;</span><br><span class="line">          ServerCnxnFactory secureCnxnFactory &#x3D; null;</span><br><span class="line"></span><br><span class="line">          &#x2F;**</span><br><span class="line">           * config.getClientPortAddress() 是zk服务器地址和端口信息</span><br><span class="line">           *&#x2F;</span><br><span class="line">          if (config.getClientPortAddress() !&#x3D; null) &#123;</span><br><span class="line">              &#x2F;**</span><br><span class="line">               * 根据 zookeeper.serverCnxnFactory 设置 cnxnFactory 默认是nio 官方推荐 NettyServerCnxnFactory</span><br><span class="line">               *&#x2F;</span><br><span class="line">              cnxnFactory &#x3D; ServerCnxnFactory.createFactory();</span><br><span class="line">              &#x2F;**</span><br><span class="line">               * 配置cnxnFactory, 这里我们以 NettyServerCnxnFactory为例 并绑定端口</span><br><span class="line">               *&#x2F;</span><br><span class="line"></span><br><span class="line">              cnxnFactory.configure(config.getClientPortAddress(),</span><br><span class="line">                      config.getMaxClientCnxns(),</span><br><span class="line">                      false);</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          if (config.getSecureClientPortAddress() !&#x3D; null) &#123;</span><br><span class="line">              &#x2F;**</span><br><span class="line">               * 根据 zookeeper.serverCnxnFactory 设置 secureCnxnFactory 默认是nio 官方推荐 NettyServerCnxnFactory</span><br><span class="line">               *&#x2F;</span><br><span class="line">              secureCnxnFactory &#x3D; ServerCnxnFactory.createFactory();</span><br><span class="line">              &#x2F;&#x2F; 配置cnxnFactory</span><br><span class="line">              secureCnxnFactory.configure(config.getSecureClientPortAddress(),</span><br><span class="line">                      config.getMaxClientCnxns(),</span><br><span class="line">                      true);</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          quorumPeer &#x3D; getQuorumPeer();</span><br><span class="line">          &#x2F;&#x2F; 快照 和 log 文件 (没有则创建)</span><br><span class="line">          quorumPeer.setTxnFactory(new FileTxnSnapLog(</span><br><span class="line">                  config.getDataLogDir(),</span><br><span class="line">                  config.getDataDir()));</span><br><span class="line">         ...</span><br><span class="line">          &#x2F;&#x2F;quorumPeer.setQuorumPeers(config.getAllMembers());</span><br><span class="line">          &#x2F;**</span><br><span class="line">           * 设计选举类型 默认是 3</span><br><span class="line">           *&#x2F;</span><br><span class="line">          quorumPeer.setElectionType(config.getElectionAlg());</span><br><span class="line">          ...</span><br><span class="line">          &#x2F;**</span><br><span class="line">           * 设置最终的裁定机制</span><br><span class="line">           *&#x2F;</span><br><span class="line">          quorumPeer.setQuorumVerifier(config.getQuorumVerifier(), false);</span><br><span class="line">          if (config.getLastSeenQuorumVerifier() !&#x3D; null) &#123;</span><br><span class="line">              quorumPeer.setLastSeenQuorumVerifier(config.getLastSeenQuorumVerifier(), false);</span><br><span class="line">          &#125;</span><br><span class="line">          ...</span><br><span class="line">          quorumPeer.initialize();</span><br><span class="line"></span><br><span class="line">          quorumPeer.start();</span><br><span class="line">          quorumPeer.join();</span><br><span class="line">      &#125; catch (InterruptedException e) &#123;</span><br><span class="line">          &#x2F;&#x2F; warn, but generally this is ok</span><br><span class="line">          LOG.warn(&quot;Quorum Peer interrupted&quot;, e);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>  集群环境启动,主要是创建了一个<strong>quorumPeer</strong>,并执行了其<strong>start()</strong>;</p>
+<p>  <strong>quorumPeer.start()</strong> 内部执行的就是 zk 集群环境启动的所有逻辑.</p>
+<h4 id="集群环境启动quorumPeer-start"><a href="#集群环境启动quorumPeer-start" class="headerlink" title="集群环境启动quorumPeer.start()"></a>集群环境启动quorumPeer.start()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void start() &#123;</span><br><span class="line">        if (!getView().containsKey(myid)) &#123;</span><br><span class="line">            throw new RuntimeException(&quot;My id &quot; + myid + &quot; not in the peer list&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 加载快照数据, 读取快照信息记录最新的记录行号 记录在QuorumPeer实例中</span><br><span class="line">         *&#x2F;</span><br><span class="line">        loadDataBase();</span><br><span class="line">        &#x2F;&#x2F; TODO: 2020&#x2F;12&#x2F;1  NIOServerCnxnFactory 中的 start</span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 开启服务 默认是 NIOServerCnxnFactory ,也可以使用NettyServerCnxnFactory</span><br><span class="line">         *</span><br><span class="line">         * 内部调用的是  cnxnFactory 和 secureCnxnFactory  start 方法</span><br><span class="line">         *&#x2F;</span><br><span class="line">        startServerCnxnFactory();</span><br><span class="line">        try &#123;</span><br><span class="line">            &#x2F;&#x2F; TODO: 2020&#x2F;12&#x2F;1  目前没看到什么特别的</span><br><span class="line">            &#x2F;**</span><br><span class="line">             * QuorumPeer 构造函数中初始化的</span><br><span class="line">             * JettyAdminServer ( zookeeper.admin.enableServer &#x3D;&quot;ture&quot;)</span><br><span class="line">             * DummyAdminServer</span><br><span class="line">             *&#x2F;</span><br><span class="line">            adminServer.start();</span><br><span class="line">        &#125; catch (AdminServerException e) &#123;</span><br><span class="line">            LOG.warn(&quot;Problem starting AdminServer&quot;, e);</span><br><span class="line">            System.out.println(e);</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 开始leader选举</span><br><span class="line">         *&#x2F;</span><br><span class="line">        startLeaderElection();</span><br><span class="line"></span><br><span class="line">        &#x2F;**</span><br><span class="line">         * 启动 线程  执行内部的run() 方法</span><br><span class="line">         *&#x2F;</span><br><span class="line">        super.start();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>quorumPeer.start()</strong> 内部主要做了如下5个事.</p>
+<ul>
+<li><p>加载快照</p>
+</li>
+<li><p>启动之前设置的ServerCnxnFactory</p>
+</li>
+<li><p>adminServer 启动(JettyAdminServer/DummyAdminServer ): 这个暂时不是很清楚是干嘛的.</p>
+</li>
+<li><p>开启选举</p>
+</li>
+<li><p>监听选举情况,随时结束选举</p>
+</li>
+</ul>
+<p>这里我们重点关注后面两个方法.</p>
+<h4 id="创建选举策略"><a href="#创建选举策略" class="headerlink" title="创建选举策略"></a>创建选举策略</h4><p>因为 <strong>quorumPeer.setElectionType(config.getElectionAlg());</strong> 默认设置的是3 , 这里走的逻辑是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line">                * 创建QuorumCnxManager 内部有监听 Listener (是一个ServerSocket)</span><br><span class="line">                *&#x2F;</span><br><span class="line">               QuorumCnxManager qcm &#x3D; createCnxnManager();</span><br><span class="line">               QuorumCnxManager oldQcm &#x3D; qcmRef.getAndSet(qcm);</span><br><span class="line">               if (oldQcm !&#x3D; null) &#123;</span><br><span class="line">                   LOG.warn(&quot;Clobbering already-set QuorumCnxManager (restarting leader election?)&quot;);</span><br><span class="line">                   oldQcm.halt();</span><br><span class="line">               &#125;</span><br><span class="line">               QuorumCnxManager.Listener listener &#x3D; qcm.listener;</span><br><span class="line">               if (listener !&#x3D; null) &#123;</span><br><span class="line">                   &#x2F;**</span><br><span class="line">                    *  子线程 执行 QuorumCnxManager.Listener 中的run()方法</span><br><span class="line">                    *&#x2F;</span><br><span class="line">                   listener.start();</span><br><span class="line">                   &#x2F;**</span><br><span class="line">                    * 快速选举</span><br><span class="line">                    *&#x2F;</span><br><span class="line">                   FastLeaderElection fle &#x3D; new FastLeaderElection(this, qcm);</span><br><span class="line">                   &#x2F;**</span><br><span class="line">                    * FastLeaderElection 不是一个线程 其内部 Messenger 维护了 两个线程 (wsThread WorkerSender wrThread &#x3D; WorkerReceiver)</span><br><span class="line">                    *&#x2F;</span><br><span class="line">                   fle.start();</span><br><span class="line">                   le &#x3D; fle;</span><br><span class="line">               &#125; else &#123;</span><br><span class="line">                   LOG.error(&quot;Null listener when initializing cnx manager&quot;);</span><br><span class="line">               &#125;</span><br><span class="line">               break;</span><br></pre></td></tr></table></figure>
+
+<p>从这里可以看出, 我们这边用的选举策略是<strong>FastLeaderElection</strong> 策略.</p>
+<h5 id="QuorumCnxManager-Listener"><a href="#QuorumCnxManager-Listener" class="headerlink" title="QuorumCnxManager.Listener"></a>QuorumCnxManager.Listener</h5><p><strong>QuorumCnxManager.Listener</strong> 内部维护的是一个 <strong>ServerSocket</strong>. 专门负责zk服务之间的通信.</p>
+<p>QuorumCnxManager.Listener.run() 方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">       public void run() &#123;</span><br><span class="line">           &#x2F;&#x2F; 重试次数</span><br><span class="line">           int numRetries &#x3D; 0;</span><br><span class="line">           InetSocketAddress addr;</span><br><span class="line">           Socket client &#x3D; null;</span><br><span class="line">           Exception exitException &#x3D; null;</span><br><span class="line">           &#x2F;&#x2F; portBindMaxRetry  默认值 3</span><br><span class="line">           while ((!shutdown) &amp;&amp; (portBindMaxRetry &#x3D;&#x3D; 0 || numRetries &lt; portBindMaxRetry)) &#123;</span><br><span class="line">               LOG.debug(&quot;Listener thread started, myId: &#123;&#125;&quot;, self.getId());</span><br><span class="line">               try &#123;</span><br><span class="line">                   if (self.shouldUsePortUnification()) &#123;</span><br><span class="line">                       LOG.info(&quot;Creating TLS-enabled quorum server socket&quot;);</span><br><span class="line">                       ss &#x3D; new UnifiedServerSocket(self.getX509Util(), true);</span><br><span class="line">                   &#125; else if (self.isSslQuorum()) &#123;</span><br><span class="line">                       LOG.info(&quot;Creating TLS-only quorum server socket&quot;);</span><br><span class="line">                       ss &#x3D; new UnifiedServerSocket(self.getX509Util(), false);</span><br><span class="line">                   &#125; else &#123;</span><br><span class="line">                       &#x2F;**</span><br><span class="line">                        * 创建Socket</span><br><span class="line">                        *&#x2F;</span><br><span class="line">                       ss &#x3D; new ServerSocket();</span><br><span class="line">                   &#125;</span><br><span class="line"></span><br><span class="line">                   ss.setReuseAddress(true);</span><br><span class="line"></span><br><span class="line">                   if (self.getQuorumListenOnAllIPs()) &#123;</span><br><span class="line">                       int port &#x3D; self.getElectionAddress().getPort();</span><br><span class="line">                       addr &#x3D; new InetSocketAddress(port);</span><br><span class="line">                   &#125; else &#123;</span><br><span class="line">                       &#x2F;&#x2F; Resolve hostname for this server in case the</span><br><span class="line">                       &#x2F;&#x2F; underlying ip address has changed.</span><br><span class="line">                       self.recreateSocketAddresses(self.getId());</span><br><span class="line">                       addr &#x3D; self.getElectionAddress();</span><br><span class="line">                   &#125;</span><br><span class="line">                   LOG.info(&quot;&#123;&#125; is accepting connections now, my election bind port: &#123;&#125;&quot;, QuorumCnxManager.this.mySid, addr.toString());</span><br><span class="line">                   setName(addr.toString());</span><br><span class="line">                   ss.bind(addr);</span><br><span class="line">                   &#x2F;**</span><br><span class="line">                    * 循环接收 其他zk发来的消息</span><br><span class="line">                    *&#x2F;</span><br><span class="line">                   while (!shutdown) &#123;</span><br><span class="line">                       try &#123;</span><br><span class="line">                           client &#x3D; ss.accept();</span><br><span class="line">                           setSockOpts(client);</span><br><span class="line">                           LOG.info(&quot;Received connection request from &#123;&#125;&quot;, client.getRemoteSocketAddress());</span><br><span class="line">                           </span><br><span class="line">                           &#x2F;**</span><br><span class="line">                            * 接收和处理消息</span><br><span class="line">                            *&#x2F;</span><br><span class="line">                           if (quorumSaslAuthEnabled) &#123;</span><br><span class="line">                               receiveConnectionAsync(client);</span><br><span class="line">                           &#125; else &#123;</span><br><span class="line">                               receiveConnection(client);</span><br><span class="line">                           &#125;</span><br><span class="line">                           numRetries &#x3D; 0;</span><br><span class="line">                       &#125; catch (SocketTimeoutException e) &#123;</span><br><span class="line">                           LOG.warn(&quot;The socket is listening for the election accepted &quot;</span><br><span class="line">                                    + &quot;and it timed out unexpectedly, but will retry.&quot;</span><br><span class="line">                                    + &quot;see ZOOKEEPER-2836&quot;);</span><br><span class="line">                       &#125;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125; catch (IOException e) &#123;</span><br><span class="line">                   if (shutdown) &#123;</span><br><span class="line">                       break;</span><br><span class="line">                   &#125;</span><br><span class="line">                   LOG.error(&quot;Exception while listening&quot;, e);</span><br><span class="line">                   exitException &#x3D; e;</span><br><span class="line">                   numRetries++;</span><br><span class="line">                   try &#123;</span><br><span class="line">                       ss.close();</span><br><span class="line">                       Thread.sleep(1000);</span><br><span class="line">                   &#125; catch (IOException ie) &#123;</span><br><span class="line">                       LOG.error(&quot;Error closing server socket&quot;, ie);</span><br><span class="line">                   &#125; catch (InterruptedException ie) &#123;</span><br><span class="line">                       LOG.error(&quot;Interrupted while sleeping. &quot; +</span><br><span class="line">                           &quot;Ignoring exception&quot;, ie);</span><br><span class="line">                   &#125;</span><br><span class="line">                   closeSocket(client);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           LOG.info(&quot;Leaving listener&quot;);</span><br><span class="line">          ...</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      public void receiveConnection(final Socket sock) &#123;</span><br><span class="line">       DataInputStream din &#x3D; null;</span><br><span class="line">       try &#123;</span><br><span class="line">           din &#x3D; new DataInputStream(</span><br><span class="line">                   new BufferedInputStream(sock.getInputStream()));</span><br><span class="line"></span><br><span class="line">           LOG.debug(&quot;Sync handling of connection request received from: &#123;&#125;&quot;, sock.getRemoteSocketAddress());</span><br><span class="line">           handleConnection(sock, din);</span><br><span class="line">       &#125; catch (IOException e) &#123;</span><br><span class="line">           LOG.error(&quot;Exception handling connection, addr: &#123;&#125;, closing server connection&quot;,</span><br><span class="line">                   sock.getRemoteSocketAddress());</span><br><span class="line">           LOG.debug(&quot;Exception details: &quot;, e);</span><br><span class="line">           closeSocket(sock);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">   private void handleConnection(Socket sock, DataInputStream din)</span><br><span class="line">           throws IOException &#123;</span><br><span class="line">       Long sid &#x3D; null, protocolVersion &#x3D; null;</span><br><span class="line">       InetSocketAddress electionAddr &#x3D; null;</span><br><span class="line"></span><br><span class="line">       try &#123;</span><br><span class="line">           protocolVersion &#x3D; din.readLong();</span><br><span class="line">           &#x2F;**</span><br><span class="line">            * server id 而不是协议id</span><br><span class="line">            * 而是 myid</span><br><span class="line">            *&#x2F;</span><br><span class="line">           if (protocolVersion &gt;&#x3D; 0) &#123; &#x2F;&#x2F; this is a server id and not a protocol version</span><br><span class="line">               sid &#x3D; protocolVersion;</span><br><span class="line">           &#125; else &#123;</span><br><span class="line">               try &#123;</span><br><span class="line">                   InitialMessage init &#x3D; InitialMessage.parse(protocolVersion, din);</span><br><span class="line">                   sid &#x3D; init.sid;</span><br><span class="line">                   electionAddr &#x3D; init.electionAddr;</span><br><span class="line">               &#125; catch (InitialMessage.InitialMessageException ex) &#123;</span><br><span class="line">                   LOG.error(&quot;Initial message parsing error!&quot;, ex);</span><br><span class="line">                   closeSocket(sock);</span><br><span class="line">                   return;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           if (sid &#x3D;&#x3D; QuorumPeer.OBSERVER_ID) &#123;</span><br><span class="line">               &#x2F;*</span><br><span class="line">                * Choose identifier at random. We need a value to identify</span><br><span class="line">                * the connection.</span><br><span class="line">                *&#x2F;</span><br><span class="line">               sid &#x3D; observerCounter.getAndDecrement();</span><br><span class="line">               LOG.info(&quot;Setting arbitrary identifier to observer: &quot; + sid);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; catch (IOException e) &#123;</span><br><span class="line">           LOG.warn(&quot;Exception reading or writing challenge: &#123;&#125;&quot;, e);</span><br><span class="line">           closeSocket(sock);</span><br><span class="line">           return;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       &#x2F;&#x2F; do authenticating learner</span><br><span class="line">       authServer.authenticate(sock, din);</span><br><span class="line">       &#x2F;&#x2F;If wins the challenge, then close the new connection.</span><br><span class="line">       &#x2F;**</span><br><span class="line">        * 比较 myid,   只保留 大 --指向--&gt; 小 的连接</span><br><span class="line">        *&#x2F;</span><br><span class="line">       if (sid &lt; self.getId()) &#123;</span><br><span class="line">           &#x2F;*</span><br><span class="line">            * This replica might still believe that the connection to sid is</span><br><span class="line">            * up, so we have to shut down the workers before trying to open a</span><br><span class="line">            * new connection.</span><br><span class="line">            *&#x2F;</span><br><span class="line">           SendWorker sw &#x3D; senderWorkerMap.get(sid);</span><br><span class="line">           if (sw !&#x3D; null) &#123;</span><br><span class="line">               sw.finish();</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           &#x2F;*</span><br><span class="line">            * Now we start a new connection</span><br><span class="line">            *&#x2F;</span><br><span class="line">           LOG.debug(&quot;Create new connection to server: &#123;&#125;&quot;, sid);</span><br><span class="line">           &#x2F;&#x2F; 关闭当前竞争失败的其他zk服务</span><br><span class="line">           closeSocket(sock);</span><br><span class="line"></span><br><span class="line">           &#x2F;**</span><br><span class="line">            * connectOne 连接 来竞争的 sid electionAddr 对应的zk服务 通知其竞争失败,下次竞争用胜利者的myid</span><br><span class="line">            *&#x2F;</span><br><span class="line">           if (electionAddr !&#x3D; null) &#123;</span><br><span class="line">               connectOne(sid, electionAddr);</span><br><span class="line">           &#125; else &#123;</span><br><span class="line">               connectOne(sid);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; else if (sid &#x3D;&#x3D; self.getId()) &#123;</span><br><span class="line">           &#x2F;&#x2F; we saw this case in ZOOKEEPER-2164</span><br><span class="line">           LOG.warn(&quot;We got a connection request from a server with our own ID. &quot;</span><br><span class="line">                   + &quot;This should be either a configuration error, or a bug.&quot;);</span><br><span class="line">       &#125; else &#123; &#x2F;&#x2F; Otherwise start worker threads to receive data.</span><br><span class="line">           &#x2F;**</span><br><span class="line">            * 如果对方 sid 大于 自己的sid 则创建两个线程 监听</span><br><span class="line">            *</span><br><span class="line">            * SendWorker 和 RecvWorker 关联</span><br><span class="line">            * RecvWorker 内部持有 SendWorker</span><br><span class="line">            *&#x2F;</span><br><span class="line">           SendWorker sw &#x3D; new SendWorker(sock, sid);</span><br><span class="line">           RecvWorker rw &#x3D; new RecvWorker(sock, din, sid, sw);</span><br><span class="line">           sw.setRecv(rw);</span><br><span class="line"></span><br><span class="line">           SendWorker vsw &#x3D; senderWorkerMap.get(sid);</span><br><span class="line"></span><br><span class="line">           if (vsw !&#x3D; null) &#123;</span><br><span class="line">               vsw.finish();</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           &#x2F;&#x2F; 将 sendwork 保存引用</span><br><span class="line">           senderWorkerMap.put(sid, sw);</span><br><span class="line">           &#x2F;&#x2F; 创建sid 对应的 blockingQueue</span><br><span class="line">           queueSendMap.putIfAbsent(sid,</span><br><span class="line">                   new ArrayBlockingQueue&lt;ByteBuffer&gt;(SEND_CAPACITY));</span><br><span class="line"></span><br><span class="line">           &#x2F;**</span><br><span class="line">            * 发送选票</span><br><span class="line">            *</span><br><span class="line">            *  其实就是发送 sid 对应的BlockingQueue 中数据</span><br><span class="line">            * queueSendMap 中(sid,BlockingQueue);</span><br><span class="line">            *&#x2F;</span><br><span class="line">           sw.start();</span><br><span class="line">           &#x2F;**</span><br><span class="line">            * 接收选票 并保存到 recvQueue 队列中</span><br><span class="line">            *&#x2F;</span><br><span class="line">           rw.start();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这里贴出来的方法很长,我们可以大概总结下 <strong>QuorumCnxManager.Listener</strong> 内部做了些什么.</p>
+<p>我们大概可以看出.QuorumCnxManager.Listener 内部维护了一个 <strong>SendWorker</strong> 和 <strong>RecvWorker</strong> 专门负责zk服务之间的通信, <strong>SendWorker</strong>负责发送,<strong>RecvWorker</strong> 负责接收消息.</p>
+<p>当zk 服务接收到其他zk服务器发来的消息时.</p>
+<ul>
+<li><p>如果对方的sid (service id) 如果比自己的小, 关闭对方和自己建立的socket连接,自己主动和该服务建立socket连接.  这种情况其实就是下面的这种情况,只是服务器发送了变化.</p>
+</li>
+<li><p>如果对方的sid 大于自己的 sid. 就为这个zk 服务创建 SendWorker,RecvWorker专门负责接收该服务器的消息.</p>
+</li>
+</ul>
+<h6 id="SendWorker发送消息"><a href="#SendWorker发送消息" class="headerlink" title="SendWorker发送消息"></a>SendWorker发送消息</h6><p>SendWorker 是 Thread 的子类. 内部循环从对应的sid 队列(blockingqueue)中取消息, 如果有消息就发送.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public void run() &#123;</span><br><span class="line">           threadCnt.incrementAndGet();</span><br><span class="line">           try &#123;</span><br><span class="line">              </span><br><span class="line">               ArrayBlockingQueue&lt;ByteBuffer&gt; bq &#x3D; queueSendMap.get(sid);</span><br><span class="line">               if (bq &#x3D;&#x3D; null || isSendQueueEmpty(bq)) &#123;</span><br><span class="line">                  ByteBuffer b &#x3D; lastMessageSent.get(sid);</span><br><span class="line">                  if (b !&#x3D; null) &#123;</span><br><span class="line">                      LOG.debug(&quot;Attempting to send lastMessage to sid&#x3D;&quot; + sid);</span><br><span class="line">                      send(b);</span><br><span class="line">                  &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; catch (IOException e) &#123;</span><br><span class="line">               LOG.error(&quot;Failed to send last message. Shutting down thread.&quot;, e);</span><br><span class="line">               this.finish();</span><br><span class="line">           &#125;</span><br><span class="line">           LOG.debug(&quot;SendWorker thread started towards &#123;&#125;. myId: &#123;&#125;&quot;, sid, QuorumCnxManager.this.mySid);</span><br><span class="line">           try &#123;</span><br><span class="line">               while (running &amp;&amp; !shutdown &amp;&amp; sock !&#x3D; null) &#123;</span><br><span class="line"></span><br><span class="line">                   ByteBuffer b &#x3D; null;</span><br><span class="line">                   try &#123;</span><br><span class="line">                       ArrayBlockingQueue&lt;ByteBuffer&gt; bq &#x3D; queueSendMap</span><br><span class="line">                               .get(sid);</span><br><span class="line">                       if (bq !&#x3D; null) &#123;</span><br><span class="line">                           b &#x3D; pollSendQueue(bq, 1000, TimeUnit.MILLISECONDS);</span><br><span class="line">                       &#125; else &#123;</span><br><span class="line">                           LOG.error(&quot;No queue of incoming messages for &quot; +</span><br><span class="line">                                     &quot;server &quot; + sid);</span><br><span class="line">                           break;</span><br><span class="line">                       &#125;</span><br><span class="line"></span><br><span class="line">                       if(b !&#x3D; null)&#123;</span><br><span class="line">                           lastMessageSent.put(sid, b);</span><br><span class="line">                           send(b);</span><br><span class="line">                       &#125;</span><br><span class="line">                   &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                       LOG.warn(&quot;Interrupted while waiting for message on queue&quot;,</span><br><span class="line">                               e);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; catch (Exception e) &#123;</span><br><span class="line">               LOG.warn(&quot;Exception when using channel: for id &quot; + sid</span><br><span class="line">                        + &quot; my id &#x3D; &quot; + QuorumCnxManager.this.mySid</span><br><span class="line">                        + &quot; error &#x3D; &quot; + e);</span><br><span class="line">           &#125;</span><br><span class="line">           this.finish();</span><br><span class="line">           LOG.warn(&quot;Send worker leaving thread &quot; + &quot; id &quot; + sid + &quot; my id &#x3D; &quot; + self.getId());</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h6 id="RecvWorker接收消息"><a href="#RecvWorker接收消息" class="headerlink" title="RecvWorker接收消息"></a>RecvWorker接收消息</h6><p>RecvWorker 是 Thread 的子类. 只要对应的sid 的socket连接没有中断,就一直循环尝试从 DataInputStream 中获取sid 服务器发送过来的消息. 取得了消息就存放在<strong>recvQueue</strong>中.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">public void run() &#123;</span><br><span class="line">            threadCnt.incrementAndGet();</span><br><span class="line">            try &#123;</span><br><span class="line">                LOG.debug(&quot;RecvWorker thread towards &#123;&#125; started. myId: &#123;&#125;&quot;, sid, QuorumCnxManager.this.mySid);</span><br><span class="line">                while (running &amp;&amp; !shutdown &amp;&amp; sock !&#x3D; null) &#123;</span><br><span class="line">                    &#x2F;**</span><br><span class="line">                     * Reads the first int to determine the length of the</span><br><span class="line">                     * message</span><br><span class="line">                     *&#x2F;</span><br><span class="line">                    int length &#x3D; din.readInt();</span><br><span class="line">                    if (length &lt;&#x3D; 0 || length &gt; PACKETMAXSIZE) &#123;</span><br><span class="line">                        throw new IOException(</span><br><span class="line">                                &quot;Received packet with invalid packet: &quot;</span><br><span class="line">                                        + length);</span><br><span class="line">                    &#125;</span><br><span class="line">                    &#x2F;**</span><br><span class="line">                     * Allocates a new ByteBuffer to receive the message</span><br><span class="line">                     *&#x2F;</span><br><span class="line">                    byte[] msgArray &#x3D; new byte[length];</span><br><span class="line">                    din.readFully(msgArray, 0, length);</span><br><span class="line">                    ByteBuffer message &#x3D; ByteBuffer.wrap(msgArray);</span><br><span class="line">                    addToRecvQueue(new Message(message.duplicate(), sid));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line">                LOG.warn(&quot;Connection broken for id &quot; + sid + &quot;, my id &#x3D; &quot;</span><br><span class="line">                         + QuorumCnxManager.this.mySid + &quot;, error &#x3D; &quot; , e);</span><br><span class="line">            &#125; finally &#123;</span><br><span class="line">                LOG.warn(&quot;Interrupting SendWorker thread from RecvWorker. sid: &#123;&#125;. myId: &#123;&#125;&quot;, sid, QuorumCnxManager.this.mySid);</span><br><span class="line">                sw.finish();</span><br><span class="line">                closeSocket(sock);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="FastLeaderElection-start"><a href="#FastLeaderElection-start" class="headerlink" title="FastLeaderElection.start"></a>FastLeaderElection.start</h5><p>FastLeaderElection 内部维护了一组<strong>WorkerSender</strong> ,<strong>WorkerReceiver</strong>. 专门负责处理本服务消息 发送和接收.</p>
+<h6 id="FastLeaderElection-WorkerSender"><a href="#FastLeaderElection-WorkerSender" class="headerlink" title="FastLeaderElection.WorkerSender"></a>FastLeaderElection.WorkerSender</h6><p><strong>WorkerSender</strong> 负责的将需要发送的消息从<strong>sendqueue</strong> 逐个取出发送出去.</p>
+<p>如果是sid是自己,说明需要发送给自己,就直接将消息条件到本服务的<strong>recvQueue</strong>接受队列中.</p>
+<p>如果不是发送给自己,则将消息添加到发送队列,即每个sid对应的发送队列(BlockingQueue),后续交给<strong>SendWorker</strong> 将消息发送给指定sid对应的ZK服务.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">public void run() &#123;</span><br><span class="line">                while (!stop) &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        ToSend m &#x3D; sendqueue.poll(3000, TimeUnit.MILLISECONDS);</span><br><span class="line">                        if(m &#x3D;&#x3D; null) continue;</span><br><span class="line"></span><br><span class="line">                        process(m);</span><br><span class="line">                    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                        break;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                LOG.info(&quot;WorkerSender is down&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"> void process(ToSend m) &#123;</span><br><span class="line">                ByteBuffer requestBuffer &#x3D; buildMsg(m.state.ordinal(),</span><br><span class="line">                                                    m.leader,</span><br><span class="line">                                                    m.zxid,</span><br><span class="line">                                                    m.electionEpoch,</span><br><span class="line">                                                    m.peerEpoch,</span><br><span class="line">                                                    m.configData);</span><br><span class="line"></span><br><span class="line">                manager.toSend(m.sid, requestBuffer);</span><br><span class="line"></span><br><span class="line">            &#125; </span><br><span class="line"></span><br><span class="line"> public void toSend(Long sid, ByteBuffer b) &#123;</span><br><span class="line">        &#x2F;*</span><br><span class="line">         * If sending message to myself, then simply enqueue it (loopback).</span><br><span class="line">         *&#x2F;</span><br><span class="line">        if (this.mySid &#x3D;&#x3D; sid) &#123;</span><br><span class="line">             b.position(0);</span><br><span class="line">             addToRecvQueue(new Message(b.duplicate(), sid));</span><br><span class="line">            &#x2F;*</span><br><span class="line">             * Otherwise send to the corresponding thread to send.</span><br><span class="line">             *&#x2F;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">             &#x2F;*</span><br><span class="line">              * Start a new connection if doesn&#39;t have one already.</span><br><span class="line">              *&#x2F;</span><br><span class="line">             ArrayBlockingQueue&lt;ByteBuffer&gt; bq &#x3D; new ArrayBlockingQueue&lt;ByteBuffer&gt;(</span><br><span class="line">                SEND_CAPACITY);</span><br><span class="line">             ArrayBlockingQueue&lt;ByteBuffer&gt; oldq &#x3D; queueSendMap.putIfAbsent(sid, bq);</span><br><span class="line">             if (oldq !&#x3D; null) &#123;</span><br><span class="line">                 addToSendQueue(oldq, b);</span><br><span class="line">             &#125; else &#123;</span><br><span class="line">                 addToSendQueue(bq, b);</span><br><span class="line">             &#125;</span><br><span class="line">             &#x2F;&#x2F;连接 发送 sid 和 addressip</span><br><span class="line">             connectOne(sid);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">           </span><br></pre></td></tr></table></figure>
+
+<h6 id="FastLeaderElection-WorkerReceiver"><a href="#FastLeaderElection-WorkerReceiver" class="headerlink" title="FastLeaderElection.WorkerReceiver"></a>FastLeaderElection.WorkerReceiver</h6><h4 id="监听选举-super-start"><a href="#监听选举-super-start" class="headerlink" title="监听选举 super.start()"></a>监听选举 super.start()</h4><p><img src="/2020/12/20/Zookeeper-%E5%90%AF%E5%8A%A8%E9%80%89%E4%B8%BE%E6%BA%90%E7%A0%81/p6.png" alt="zk 启动选举选举机制"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JAVA/" rel="tag"># JAVA</a>
+              <a href="/tags/Zookeeper/" rel="tag"># Zookeeper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/14/rocketMq/" rel="prev" title="RocketMq 环境搭建">
+      <i class="fa fa-chevron-left"></i> RocketMq 环境搭建
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/01/2021-%E5%88%86%E4%BA%AB/" rel="next" title="2021 分享">
+      2021 分享 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.</span> <span class="nav-text">源码下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E5%90%AF%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">本地启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB"><span class="nav-number">3.</span> <span class="nav-text">源码解读</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E6%A6%82%E6%B5%81%E7%A8%8B"><span class="nav-number">3.1.</span> <span class="nav-text">大概流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E9%AA%8C%E8%AF%81"><span class="nav-number">3.2.</span> <span class="nav-text">源码验证</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.1.</span> <span class="nav-text">解析配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E5%88%86%E5%B8%83%E5%BC%8F%E9%80%BB%E8%BE%91"><span class="nav-number">3.2.2.</span> <span class="nav-text">启动分布式逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E5%90%AF%E5%8A%A8quorumPeer-start"><span class="nav-number">3.2.3.</span> <span class="nav-text">集群环境启动quorumPeer.start()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%80%89%E4%B8%BE%E7%AD%96%E7%95%A5"><span class="nav-number">3.2.4.</span> <span class="nav-text">创建选举策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#QuorumCnxManager-Listener"><span class="nav-number">3.2.4.1.</span> <span class="nav-text">QuorumCnxManager.Listener</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#SendWorker%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="nav-number">3.2.4.1.1.</span> <span class="nav-text">SendWorker发送消息</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#RecvWorker%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF"><span class="nav-number">3.2.4.1.2.</span> <span class="nav-text">RecvWorker接收消息</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#FastLeaderElection-start"><span class="nav-number">3.2.4.2.</span> <span class="nav-text">FastLeaderElection.start</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#FastLeaderElection-WorkerSender"><span class="nav-number">3.2.4.2.1.</span> <span class="nav-text">FastLeaderElection.WorkerSender</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#FastLeaderElection-WorkerReceiver"><span class="nav-number">3.2.4.2.2.</span> <span class="nav-text">FastLeaderElection.WorkerReceiver</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%91%E5%90%AC%E9%80%89%E4%B8%BE-super-start"><span class="nav-number">3.2.5.</span> <span class="nav-text">监听选举 super.start()</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zhangwenhao</p>
+  <div class="site-description" itemprop="description">告诉自己可以做好，即使是新事物，也一样可以做好</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhangwenhao</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
